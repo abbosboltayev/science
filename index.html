@@ -32,7 +32,7 @@ button,input,select,textarea{font:inherit}button{border:0;border-radius:11px;pad
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 // Add your Supabase project URL and anon key after completing SETUP.md.
-const SUPABASE_URL = 'https://qfxbtymrsnyipnmhqgzb.supabase.co/rest/v1/';
+const SUPABASE_URL = 'https://qfxbtymrsnyipnmhqgzb.supabase.co/';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmeGJ0eW1yc255aXBubWhxZ3piIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyODIwOTAsImV4cCI6MjEwNzg1ODA5MH0.aLr0T_VKn_vS6szcdL0QfnivrDNtPkp7_yMmpxO2p6o';
 const onlineConfigured = SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('YOUR_') && SUPABASE_ANON_KEY.length>20;
 const supabase = onlineConfigured ? createClient(SUPABASE_URL,SUPABASE_ANON_KEY) : null;
