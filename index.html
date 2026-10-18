@@ -38,57 +38,6 @@ const onlineConfigured = SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.in
 const supabase = onlineConfigured ? createClient(SUPABASE_URL,SUPABASE_ANON_KEY) : null;
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let games=JSON.parse(localStorage.getItem('quizarena_games')||'[]'),draft=[],current=null,used=[],teams=[],roomCode='',roomSub=null,sessionRole='teacher',sessionName='';
-let roomSyncTimer = null;
-
-function startRoomSync() {
-  if (roomSyncTimer) {
-    clearInterval(roomSyncTimer);
-  }
-
-  roomSyncTimer = setInterval(async () => {
-    if (!roomCode || !supabase) return;
-
-    try {
-      if (sessionRole === 'teacher') {
-        const { error } = await supabase
-          .from('rooms')
-          .update({
-            teams: teams,
-            used: used
-          })
-          .eq('code', roomCode);
-
-        if (error) {
-          console.error('Room update failed:', error);
-        }
-
-      } else if (sessionRole === 'student') {
-        const { data, error } = await supabase
-          .from('rooms')
-          .select('game, teams, used, status')
-          .eq('code', roomCode)
-          .maybeSingle();
-
-        if (error) throw error;
-
-        if (!data || data.status !== 'active') {
-          clearInterval(roomSyncTimer);
-          roomSyncTimer = null;
-          return;
-        }
-
-        teams = data.teams || [];
-        used = data.used || [];
-        current = data.game;
-
-        renderPlay();
-      }
-
-    } catch (error) {
-      console.error('Room synchronization failed:', error);
-    }
-  }, 2000);
-}
 $('connectionStatus').textContent=onlineConfigured?'Live rooms: configured':'Online mode: setup required';
 function persist(){localStorage.setItem('quizarena_games',JSON.stringify(games));stats()}
 function stats(){$('gameCount').textContent=games.length;$('questionCount').textContent=games.reduce((n,g)=>n+g.questions.length,0)}
@@ -152,7 +101,57 @@ async function createOnlineRoom() {
   }
 }
 function renderPlay(){if(!current)return;$('playTitle').textContent=current.name;$('playSubject').textContent=current.subject||'';$('playDescription').textContent=current.description||'';$('teams').innerHTML=teams.map((t,i)=>`<div class="team"><strong>${esc(t.name)}</strong><span class="score">${t.score}</span><div class="small muted">points</div><button class="soft" data-minus="${i}">−5</button> <button class="soft" data-plus="${i}">+5</button></div>`).join('');$('teams').querySelectorAll('[data-minus]').forEach(b=>b.onclick=()=>scoreTeam(+b.dataset.minus,-5));$('teams').querySelectorAll('[data-plus]').forEach(b=>b.onclick=()=>scoreTeam(+b.dataset.plus,5));$('scoreTeam').innerHTML=teams.map((t,i)=>`<option value="${i}">${esc(t.name)}</option>`).join('');$('roomInfo').innerHTML=`<b>Room code: ${esc(roomCode)}</b> · ${onlineConfigured?'Live room is enabled. Share this code with students.':'Local demo only. Add Supabase settings to enable cross-device sync.'}`;$('gameBoard').innerHTML=current.questions.map((q,i)=>`<button class="tile ${used.includes(i)?'used':''}" data-tile="${i}" ${used.includes(i)?'disabled':''}>${used.includes(i)?'✓':i+1}<div style="font-size:.72rem">${used.includes(i)?'Completed':'Question'}</div></button>`).join('');$('gameBoard').querySelectorAll('[data-tile]').forEach(b=>b.onclick=()=>openQuestion(+b.dataset.tile))}
-async function syncRoom(){if(!supabase||sessionRole!=='teacher')return;const {error}=await supabase.from('rooms').update({teams,used}).eq('code',roomCode);if(error)console.warn(error)}
+let roomSyncTimer = null;
+
+function startRoomSync() {
+  if (roomSyncTimer) {
+    clearInterval(roomSyncTimer);
+  }
+
+  roomSyncTimer = setInterval(async () => {
+    if (!roomCode || !supabase) return;
+
+    try {
+      if (sessionRole === 'teacher') {
+        const { error } = await supabase
+          .from('rooms')
+          .update({
+            teams: teams,
+            used: used
+          })
+          .eq('code', roomCode);
+
+        if (error) {
+          console.error('Room update failed:', error);
+        }
+
+      } else if (sessionRole === 'student') {
+        const { data, error } = await supabase
+          .from('rooms')
+          .select('game, teams, used, status')
+          .eq('code', roomCode)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (!data || data.status !== 'active') {
+          clearInterval(roomSyncTimer);
+          roomSyncTimer = null;
+          return;
+        }
+
+        teams = data.teams || [];
+        used = data.used || [];
+        current = data.game;
+
+        renderPlay();
+      }
+
+    } catch (error) {
+      console.error('Room synchronization failed:', error);
+    }
+  }, 2000);
+}
 async function scoreTeam(i,delta){if(!teams[i])return;teams[i].score+=delta;renderPlay();await syncRoom()}
 $('addTeam').onclick=async()=>{let name=$('teamName').value.trim();if(!name)return;teams.push({name,score:0});$('teamName').value='';renderPlay();await syncRoom()};
 $('applyScore').onclick=async()=>{let i=+$('scoreTeam').value,d=+$('scoreDelta').value;if(teams[i])teams[i].score+=d;renderPlay();await syncRoom()};
