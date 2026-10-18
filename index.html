@@ -70,7 +70,15 @@ async function finishQuestion(i){used.push(i);$('modalRoot').innerHTML='';render
 async function subscribeRoom(){if(!supabase)return;if(roomSub)await supabase.removeChannel(roomSub);roomSub=supabase.channel('room-'+roomCode).on('postgres_changes',{event:'UPDATE',schema:'public',table:'rooms',filter:'code=eq.'+roomCode},payload=>{if(sessionRole==='student'){teams=payload.new.teams||[];used=payload.new.used||[];current=payload.new.game;renderPlay()}}).subscribe()}
 $('copyRoom').onclick=()=>alert('Room code: '+roomCode+'\n'+(onlineConfigured?'Share this code with students.':'This is a local demo code until Supabase is configured.'));
 $('backLibrary').onclick=()=>{if(roomSub&&supabase)supabase.removeChannel(roomSub);nav('library')};
-$('joinBtn').onclick=async()=>{let code=$('joinCode').value.trim().toUpperCase(),name=$('playerName').value.trim()||'Student';if(!code)return alert('Enter a room code.');if(!supabase){$('joinResult').innerHTML='<div class="notice">Live joining is not configured yet. Follow SETUP.md to connect Supabase.</div>';return}try{const {data,error}=await supabase.from('rooms').select('*').eq('code',code).eq('status','active').single();if(error||!data)throw error||new Error('Room not found');roomCode=data.code;current=data.game;teams=data.teams||[];used=data.used||[];sessionRole='student';sessionName=name;nav('play');renderPlay();$('roomInfo').textContent='Joined as '+name+'. Your view will update when the teacher changes the game.';subscribeRoom();$('teamName').disabled=true;$('addTeam').disabled=true;$('applyScore').disabled=true}catch(e){$('joinResult').innerHTML='<div class="notice">Room not found. Check the code and try again.</div>'}};
+$('joinBtn').onclick=async()=>{let code=$('joinCode').value.trim().toUpperCase(),name=$('playerName').value.trim()||'Student';if(!code)return alert('Enter a room code.');if(!supabase){$('joinResult').innerHTML='<div class="notice">Live joining is not configured yet. Follow SETUP.md to connect Supabase.</div>';return}try{const {data,error}=await supabase.from('rooms').select('*').eq('code',code).eq('status','active').single();if(error||!data)throw error||new Error('Room not found');roomCode=data.code;current=data.game;teams=data.teams||[];used=data.used||[];sessionRole='student';sessionName=name;nav('play');renderPlay();$('roomInfo').textContent='Joined as '+name+'. Your view will update when the teacher changes the game.';subscribeRoom();$('teamName').disabled=true;$('addTeam').disabled=true;$('applyScore').disabled=true} catch(e) {
+  console.error('Room joining error:', e);
+
+  $('joinResult').innerHTML = `
+    <div class="notice">
+      Error: ${e.message || 'Unknown error'}
+    </div>
+  `;
+}};
 stats();renderHome();renderLibrary();
 </script>
 </body></html>
