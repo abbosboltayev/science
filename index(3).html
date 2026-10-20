@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Force & Gravity — Classroom Game</title>
+<style>
+  :root {
+    --bg: #10162f;
+    --panel: #1a2347;
+    --panel-2: #222e5d;
+    --ink: #f7f8ff;
+    --muted: #b8c3e8;
+    --accent: #ffd166;
+    --blue: #4cc9f0;
+    --pink: #f72585;
+    --green: #80ed99;
+    --red: #ff6b6b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; color: var(--ink);
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    background: radial-gradient(circle at top left, #263b79 0, transparent 38%),
+                radial-gradient(circle at bottom right, #4a1f64 0, transparent 34%), var(--bg);
+  }
+  button, input { font: inherit; }
+  button { cursor: pointer; border: 0; transition: transform .12s, filter .12s; }
+  button:hover { filter: brightness(1.08); }
+  button:active { transform: scale(.98); }
+  .wrap { max-width: 1180px; margin: auto; padding: 24px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+  .brand { display: flex; align-items: center; gap: 13px; }
+  .logo { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 16px; background: var(--accent); color: #18203f; font-size: 28px; font-weight: 900; }
+  h1 { margin: 0; font-size: clamp(1.4rem, 3vw, 2.1rem); letter-spacing: -.04em; }
+  .subtitle { color: var(--muted); margin-top: 4px; font-size: .95rem; }
+  .pill { background: #29345f; color: var(--muted); border: 1px solid #445181; border-radius: 999px; padding: 9px 13px; font-size: .85rem; white-space: nowrap; }
+  .scoreboard { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .team { background: rgba(26,35,71,.92); border: 2px solid transparent; border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 13px; min-width: 0; }
+  .team.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,209,102,.12); }
+  .team-dot { width: 13px; height: 13px; border-radius: 50%; flex: 0 0 auto; }
+  .team-a .team-dot { background: var(--blue); }
+  .team-b .team-dot { background: var(--pink); }
+  .team-info { flex: 1; min-width: 0; }
+  .team-name { width: 100%; min-width: 0; color: var(--ink); background: transparent; border: 0; border-bottom: 1px solid #46527f; padding: 4px 0 7px; font-weight: 700; outline: none; }
+  .score { font-size: 2rem; font-weight: 850; line-height: 1.1; margin-top: 8px; }
+  .score-label { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .12em; }
+  .select-team { background: #303d70; color: white; border-radius: 10px; padding: 9px 11px; font-size: .8rem; }
+  .active .select-team { background: var(--accent); color: #18203f; font-weight: 800; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
+  .game-panel, .side-panel { background: rgba(26,35,71,.88); border: 1px solid #354373; border-radius: 22px; padding: 18px; }
+  .panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+  h2 { margin: 0; font-size: 1.1rem; }
+  .small { color: var(--muted); font-size: .84rem; }
+  .grid { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 10px; }
+  .tile {
+    min-height: 105px; border-radius: 15px; color: #152044; font-size: 1.7rem; font-weight: 900;
+    background: linear-gradient(145deg, #ffe08a, #ffb703); box-shadow: 0 5px 0 #b7770b;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  }
+  .tile span { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; }
+  .tile.used { background: #313d67; color: #7f8bb8; box-shadow: 0 5px 0 #20294c; cursor: default; }
+  .tile.used span { color: #7f8bb8; }
+  .tile:focus-visible, button:focus-visible { outline: 3px solid white; outline-offset: 3px; }
+  .side-panel h2 { margin-bottom: 13px; }
+  .action-group { margin-bottom: 17px; }
+  .action-group label { display: block; font-size: .82rem; color: var(--muted); margin-bottom: 7px; }
+  .field-row { display: flex; gap: 7px; }
+  input[type="number"] { width: 100%; min-width: 0; border: 1px solid #46527f; border-radius: 10px; padding: 10px; background: #111a3b; color: white; }
+  .btn { border-radius: 10px; padding: 10px 12px; font-weight: 750; }
+  .btn-blue { background: var(--blue); color: #10203e; }
+  .btn-pink { background: var(--pink); color: white; }
+  .btn-gold { background: var(--accent); color: #18203f; }
+  .btn-dark { background: #303d70; color: white; }
+  .btn-red { background: #8c2f45; color: white; }
+  .btn-block { width: 100%; margin-top: 7px; }
+  .help { background: #111a3b; color: var(--muted); padding: 12px; border-radius: 12px; font-size: .82rem; line-height: 1.5; }
+  .status { min-height: 22px; margin-top: 12px; color: var(--green); font-size: .86rem; }
+  .modal { position: fixed; inset: 0; background: rgba(4,7,22,.78); display: none; align-items: center; justify-content: center; padding: 18px; z-index: 10; }
+  .modal.open { display: flex; }
+  .modal-card { width: min(680px, 100%); background: #1b254d; border: 1px solid #55659a; border-radius: 24px; padding: clamp(20px, 4vw, 34px); box-shadow: 0 24px 90px #0008; }
+  .modal-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .question-number { color: var(--accent); font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .13em; }
+  .close { background: #303d70; color: white; border-radius: 10px; padding: 8px 12px; }
+  .question { font-size: clamp(1.35rem, 3.4vw, 2rem); line-height: 1.3; margin: 22px 0; }
+  .answer-box { background: #111a3b; border: 1px dashed #6877ac; border-radius: 14px; padding: 17px; margin-bottom: 16px; }
+  .answer-label { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 6px; }
+  .answer { font-size: 1.4rem; font-weight: 850; color: var(--green); }
+  .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .modal-actions .btn { flex: 1 1 140px; }
+  footer { text-align: center; color: #8794c4; font-size: .78rem; padding: 18px 0 4px; }
+  @media (max-width: 850px) { .layout { grid-template-columns: 1fr; } .side-panel { order: -1; } }
+  @media (max-width: 560px) {
+    .wrap { padding: 14px; } header { align-items: flex-start; flex-direction: column; }
+    .scoreboard { gap: 8px; } .team { padding: 11px; flex-wrap: wrap; }
+    .score { font-size: 1.6rem; } .select-team { width: 100%; }
+    .grid { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
+    .tile { min-height: 88px; }
+    .game-panel, .side-panel { padding: 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">FG</div>
+      <div>
+        <h1>Force &amp; Gravity Challenge</h1>
+        <div class="subtitle">A team quiz game for Science class</div>
+      </div>
+    </div>
+    <div class="pill">22 mystery tiles · Questions & surprise cards</div>
+  </header>
+
+  <section class="scoreboard" aria-label="Team scores">
+    <div class="team team-a active" id="teamCard0">
+      <div class="team-dot"></div>
+      <div class="team-info">
+        <input class="team-name" id="teamName0" aria-label="Team 1 name" value="Team Blue" maxlength="24">
+        <div class="score-label">Score</div><div class="score" id="score0">0</div>
+      </div>
+      <button class="select-team" onclick="setActiveTeam(0)">ACTIVE TEAM</button>
+    </div>
+    <div class="team team-b" id="teamCard1">
+      <div class="team-dot"></div>
+      <div class="team-info">
+        <input class="team-name" id="teamName1" aria-label="Team 2 name" value="Team Pink" maxlength="24">
+        <div class="score-label">Score</div><div class="score" id="score1">0</div>
+      </div>
+      <button class="select-team" onclick="setActiveTeam(1)">SELECT TEAM</button>
+    </div>
+  </section>
+
+  <div class="layout">
+    <main class="game-panel">
+      <div class="panel-heading">
+        <h2>Choose a mystery tile</h2>
+        <div class="small"><span id="remaining">15</span> remaining</div>
+      </div>
+      <div class="grid" id="questionGrid"></div>
+      <div class="status" id="status" role="status" aria-live="polite">Team Blue starts. Select a tile to play.</div>
+    </main>
+
+    <aside class="side-panel">
+      <h2>Score controls</h2>
+      <div class="action-group">
+        <label for="points">Points</label>
+        <div class="field-row">
+          <input id="points" type="number" min="1" max="1000" value="10">
+          <button class="btn btn-gold" onclick="addPoints()">Add to active team</button>
+        </div>
+      </div>
+      <div class="action-group">
+        <label>Steal points from the opposing team</label>
+        <div class="field-row">
+          <input id="stealPoints" type="number" min="1" max="1000" value="10" aria-label="Points to steal">
+          <button class="btn btn-pink" onclick="stealPoints()">Steal</button>
+        </div>
+      </div>
+      <div class="action-group">
+        <label>Bonus points</label>
+        <button class="btn btn-blue btn-block" onclick="bonusPoints(5)">+5 bonus points</button>
+        <button class="btn btn-blue btn-block" onclick="bonusPoints(10)">+10 bonus points</button>
+      </div>
+      <div class="action-group">
+        <label>Reset a team's score</label>
+        <button class="btn btn-dark btn-block" onclick="resetActiveScore()">Set active team's score to 0</button>
+      </div>
+      <div class="action-group">
+        <label>Game controls</label>
+        <button class="btn btn-red btn-block" onclick="resetGame()">Reset entire game</button>
+      </div>
+      <div class="help">
+        <strong>How to play</strong><br>
+        1. Choose the active team.<br>
+        2. Open a question tile and ask the team to answer.<br>
+        3. Reveal the answer. Award points with the score controls.<br>
+        4. Use <em>Steal</em> to transfer points from the other team to the active team. Scores cannot go below zero when stealing.
+      </div>
+    </aside>
+  </div>
+  <footer>Force &amp; Gravity Challenge · Built for classroom use · Runs in your browser</footer>
+</div>
+
+<div class="modal" id="questionModal" role="dialog" aria-modal="true" aria-labelledby="questionText">
+  <div class="modal-card">
+    <div class="modal-top">
+      <div class="question-number" id="questionNumber">Tile 1</div>
+      <button class="close" onclick="closeQuestion(false)">Close ✕</button>
+    </div>
+    <div class="question" id="questionText"></div>
+    <div class="answer-box" id="answerBox">
+      <div class="answer-label">Correct answer</div>
+      <div class="answer" id="answerText" style="visibility:hidden">Answer</div>
+      <button class="btn btn-gold" id="revealButton" onclick="revealAnswer()">Reveal answer</button>
+    </div>
+    <div class="modal-actions" id="questionActions">
+      <button class="btn btn-blue" onclick="awardAndClose(10)">Correct · +10 points</button>
+      <button class="btn btn-dark" onclick="closeQuestion(false)">Skip / close</button>
+    </div>
+    <div class="modal-actions" id="specialActions" style="display:none">
+      <button class="btn btn-gold" id="applySpecialButton" onclick="applySpecialCard()">Apply surprise card</button>
+      <button class="btn btn-dark" onclick="closeQuestion(false)">Cancel</button>
+    </div>
+    <div class="small" id="modalHint" style="margin-top:12px">Answer correctly to earn points.</div>
+  </div>
+</div>
+
+<script>
+const questionCards = [
+  { type: "question", q: "What force pulls objects towards each other?", a: "Gravity" },
+  { type: "question", q: "What is a push or a pull called?", a: "A force" },
+  { type: "question", q: "What shows the direction of a force in a diagram?", a: "An arrow" },
+  { type: "question", q: "What is the shape of the Earth?", a: "A sphere" },
+  { type: "question", q: "In which direction does Earth's gravity act?", a: "Towards the centre" },
+  { type: "question", q: "Which force keeps the Moon in orbit around Earth?", a: "Gravity" },
+  { type: "question", q: "How is the gravitational force of an object with a large mass?", a: "Strong" },
+  { type: "question", q: "How is the gravitational force of a small-mass object, such as a pencil?", a: "Weak" },
+  { type: "question", q: "What happens to gravity as an object moves farther from Earth's centre?", a: "It weakens" },
+  { type: "question", q: "How strong is Earth's gravity near its surface?", a: "Strong" },
+  { type: "question", q: "In which direction does an apple fall from a tree?", a: "Downwards" },
+  { type: "question", q: "Which property of an object affects its gravitational force?", a: "Its mass" },
+  { type: "question", q: "What does the word “mass” mean in Uzbek?", a: "Massa" },
+  { type: "question", q: "What does the word “force” mean in Uzbek?", a: "Kuch" },
+  { type: "question", q: "What happens to Earth's gravitational pull on a spacecraft as it moves farther away?", a: "It decreases" }
+];
+const specialCards = [
+  { type: "special", title: "TAKE 20 POINTS!", description: "Take 20 points from the other team.", effect: "steal", value: 20 },
+  { type: "special", title: "BONUS! +15 POINTS", description: "Add 15 bonus points to your team's score.", effect: "bonus", value: 15 },
+  { type: "special", title: "OPPONENT RESET!", description: "Set the other team's score to ZERO!", effect: "zeroOpponent" },
+  { type: "special", title: "YOUR SCORE IS ZERO!", description: "Set your team's score to ZERO.", effect: "zeroActive" },
+  { type: "special", title: "TAKE 10 POINTS!", description: "Take 10 points from the other team.", effect: "steal", value: 10 },
+  { type: "special", title: "LUCKY BONUS! +25", description: "Add 25 bonus points to your team's score.", effect: "bonus", value: 25 },
+  { type: "special", title: "LOSE 10 POINTS!", description: "Your team loses 10 points. The score cannot go below zero.", effect: "lose", value: 10 }
+];
+
+let deck = [];
+let scores = [0, 0];
+let activeTeam = 0;
+let usedCards = new Set();
+let currentCardIndex = null;
+const $ = (id) => document.getElementById(id);
+
+function teamName(index) {
+  return $("teamName" + index).value.trim() || ("Team " + (index + 1));
+}
+function shuffle(items) {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+function buildDeck() { deck = shuffle([...questionCards, ...specialCards]); }
+function renderScores() {
+  scores.forEach((score, i) => $("score" + i).textContent = score);
+  $("teamCard0").classList.toggle("active", activeTeam === 0);
+  $("teamCard1").classList.toggle("active", activeTeam === 1);
+  document.querySelectorAll(".select-team").forEach((button, i) => {
+    button.textContent = activeTeam === i ? "ACTIVE TEAM" : "SELECT TEAM";
+  });
+}
+function setActiveTeam(index) {
+  activeTeam = index; renderScores();
+  setStatus(teamName(index) + " is now the active team.");
+}
+function setStatus(message) { $("status").textContent = message; }
+function renderGrid() {
+  const grid = $("questionGrid"); grid.innerHTML = "";
+  deck.forEach((card, index) => {
+    const tile = document.createElement("button");
+    tile.className = "tile" + (usedCards.has(index) ? " used" : "");
+    tile.disabled = usedCards.has(index);
+    // Keep every unopened tile visually identical; card type stays hidden until opened.
+    tile.innerHTML = usedCards.has(index) ? "✓<span>Completed</span>" : (index + 1) + "<span>Pick me</span>";
+    tile.setAttribute("aria-label", usedCards.has(index) ? "Tile " + (index + 1) + ", completed" : "Open mystery tile " + (index + 1));
+    tile.addEventListener("click", () => openCard(index)); grid.appendChild(tile);
+  });
+  $("remaining").textContent = deck.length - usedCards.size;
+}
+function openCard(index) {
+  if (usedCards.has(index)) return;
+  currentCardIndex = index;
+  const card = deck[index];
+  $("questionNumber").textContent = "Mystery tile " + (index + 1) + " · " + teamName(activeTeam);
+  $("answerText").style.visibility = "hidden";
+  $("revealButton").style.display = "inline-block";
+  if (card.type === "question") {
+    $("questionText").textContent = card.q;
+    $("answerText").textContent = card.a;
+    $("answerBox").style.display = "block";
+    $("questionActions").style.display = "flex";
+    $("specialActions").style.display = "none";
+    $("modalHint").textContent = "Give a short answer. A correct answer earns 10 points.";
+  } else {
+    $("questionText").textContent = card.title;
+    $("answerBox").style.display = "none";
+    $("questionActions").style.display = "none";
+    $("specialActions").style.display = "flex";
+    $("applySpecialButton").textContent = "Apply card";
+    $("modalHint").textContent = card.description;
+  }
+  $("questionModal").classList.add("open");
+}
+function revealAnswer() {
+  $("answerText").style.visibility = "visible";
+  $("revealButton").style.display = "none";
+}
+function closeQuestion(markUsed = false) {
+  if (markUsed && currentCardIndex !== null) { usedCards.add(currentCardIndex); renderGrid(); }
+  $("questionModal").classList.remove("open");
+  currentCardIndex = null;
+}
+function awardAndClose(points) {
+  if (currentCardIndex === null) return;
+  const team = activeTeam;
+  scores[team] += points;
+  usedCards.add(currentCardIndex); renderScores(); renderGrid();
+  closeQuestion(false);
+  setStatus(teamName(team) + " earned " + points + " points.");
+}
+function applySpecialCard() {
+  if (currentCardIndex === null) return;
+  const card = deck[currentCardIndex];
+  const opponent = 1 - activeTeam;
+  let message = "";
+  if (card.effect === "steal") {
+    const amount = Math.min(card.value, scores[opponent]);
+    scores[opponent] -= amount; scores[activeTeam] += amount;
+    message = teamName(activeTeam) + " took " + amount + " points from " + teamName(opponent) + ".";
+  } else if (card.effect === "bonus") {
+    scores[activeTeam] += card.value;
+    message = teamName(activeTeam) + " received " + card.value + " bonus points!";
+  } else if (card.effect === "zeroOpponent") {
+    scores[opponent] = 0;
+    message = teamName(opponent) + "'s score is now ZERO!";
+  } else if (card.effect === "zeroActive") {
+    scores[activeTeam] = 0;
+    message = teamName(activeTeam) + "'s score is now ZERO!";
+  } else if (card.effect === "lose") {
+    const amount = Math.min(card.value, scores[activeTeam]);
+    scores[activeTeam] -= amount;
+    message = teamName(activeTeam) + " lost " + amount + " points.";
+  }
+  usedCards.add(currentCardIndex); renderScores(); renderGrid();
+  closeQuestion(false); setStatus(message);
+}
+function readPoints(id) {
+  const n = Number.parseInt($(id).value, 10);
+  return Number.isFinite(n) && n > 0 ? Math.min(n, 1000) : 0;
+}
+function addPoints() {
+  const n = readPoints("points");
+  if (!n) return setStatus("Enter a points value greater than zero.");
+  scores[activeTeam] += n; renderScores(); setStatus(teamName(activeTeam) + " gained " + n + " points.");
+}
+function stealPoints() {
+  const n = readPoints("stealPoints");
+  if (!n) return setStatus("Enter a points value greater than zero.");
+  const opponent = 1 - activeTeam; const transferred = Math.min(n, scores[opponent]);
+  scores[opponent] -= transferred; scores[activeTeam] += transferred; renderScores();
+  setStatus(teamName(activeTeam) + " stole " + transferred + " points from " + teamName(opponent) + ".");
+}
+function bonusPoints(n) { scores[activeTeam] += n; renderScores(); setStatus(teamName(activeTeam) + " received " + n + " bonus points."); }
+function resetActiveScore() {
+  if (!confirm("Set " + teamName(activeTeam) + "'s score to zero?")) return;
+  scores[activeTeam] = 0; renderScores(); setStatus(teamName(activeTeam) + "'s score was reset to zero.");
+}
+function resetGame() {
+  if (!confirm("Reset all scores and shuffle all 22 mystery tiles?")) return;
+  scores = [0, 0]; activeTeam = 0; usedCards.clear(); currentCardIndex = null;
+  buildDeck(); renderScores(); renderGrid(); closeQuestion(false);
+  setStatus("Game reset. " + teamName(0) + " starts.");
+}
+$("questionModal").addEventListener("click", (event) => { if (event.target === $("questionModal")) closeQuestion(false); });
+document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeQuestion(false); });
+buildDeck(); renderScores(); renderGrid();
+</script>
+</body>
+</html>
