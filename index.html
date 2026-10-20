@@ -7,101 +7,118 @@ html = r'''<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Force & Gravity — Classroom Challenge</title>
 <style>
-:root{--bg:#10162f;--panel:#1a2347;--panel2:#222e5d;--ink:#f7f8ff;--muted:#b8c3e8;--gold:#ffd166;--blue:#4cc9f0;--pink:#f72585;--green:#80ed99;--red:#ff6b6b}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);font-family:Inter,"Segoe UI",Arial,sans-serif;background:radial-gradient(circle at top left,#263b79 0,transparent 38%),radial-gradient(circle at bottom right,#4a1f64 0,transparent 34%),var(--bg)}
-button,input{font:inherit}button{cursor:pointer;border:0;transition:filter .12s,transform .12s}button:hover{filter:brightness(1.08)}button:active{transform:scale(.98)}button:disabled{cursor:not-allowed;filter:none}
-.wrap{max-width:1200px;margin:auto;padding:24px}header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}.brand{display:flex;align-items:center;gap:13px}.logo{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:var(--gold);color:#18203f;font-size:25px;font-weight:900}h1{margin:0;font-size:clamp(1.4rem,3vw,2.1rem);letter-spacing:-.04em}.subtitle{color:var(--muted);margin-top:4px}.pill{background:#29345f;color:var(--muted);border:1px solid #445181;border-radius:999px;padding:9px 13px;font-size:.85rem}
-.scoreboard{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}.team{background:rgba(26,35,71,.92);border:2px solid transparent;border-radius:20px;padding:15px;display:flex;align-items:center;gap:13px;min-width:0}.team.active{border-color:var(--gold);box-shadow:0 0 0 3px #ffd16620}.team-dot{width:13px;height:13px;border-radius:50%;flex:0 0 auto}.team-a .team-dot{background:var(--blue)}.team-b .team-dot{background:var(--pink)}.team-info{flex:1;min-width:0}.team-name{width:100%;min-width:0;color:var(--ink);background:transparent;border:0;border-bottom:1px solid #46527f;padding:4px 0 7px;font-weight:700;outline:none}.score{font-size:2rem;font-weight:850;line-height:1.1;margin-top:8px}.score-label{color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.12em}.select-team{background:#303d70;color:white;border-radius:10px;padding:9px 11px;font-size:.8rem}.active .select-team{background:var(--gold);color:#18203f;font-weight:800}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:18px;align-items:start}.panel{background:rgba(26,35,71,.9);border:1px solid #354373;border-radius:22px;padding:18px}.panel-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}h2{margin:0;font-size:1.1rem}.small{color:var(--muted);font-size:.84rem}.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
-.tile{min-height:100px;border-radius:15px;color:#152044;font-size:1.65rem;font-weight:900;background:linear-gradient(145deg,#ffe08a,#ffb703);box-shadow:0 5px 0 #b7770b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;position:relative;overflow:hidden}.tile span{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.tile .tile-mark{font-size:1.1rem}.tile.used{background:#313d67;color:#7f8bb8;box-shadow:0 5px 0 #20294c}.tile.used span{color:#7f8bb8}.tile:focus-visible,button:focus-visible{outline:3px solid white;outline-offset:3px}
-.rules{color:var(--muted);font-size:.82rem;line-height:1.55;background:#111a3b;border-radius:12px;padding:13px;margin-top:14px}.status{min-height:22px;margin-top:12px;color:var(--green);font-size:.86rem}
-.modal{position:fixed;inset:0;background:#040716c9;display:none;align-items:center;justify-content:center;padding:16px;z-index:10;overflow-y:auto}.modal.open{display:flex}.modal-card{width:min(760px,100%);max-height:94vh;overflow-y:auto;background:#1b254d;border:1px solid #55659a;border-radius:24px;padding:clamp(18px,4vw,32px);box-shadow:0 24px 90px #0008}.modal-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.q-label{color:var(--gold);font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.13em}.close{background:#303d70;color:white;border-radius:10px;padding:8px 12px}.question{font-size:clamp(1.3rem,3.3vw,1.9rem);line-height:1.3;margin:18px 0}.q-image{display:none;width:100%;max-height:260px;object-fit:contain;background:#111a3b;border-radius:15px;margin:0 auto 16px}.answer-box{background:#111a3b;border:1px dashed #6877ac;border-radius:14px;padding:15px;margin-bottom:14px}.answer-label{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px}.answer{font-size:1.35rem;font-weight:850;color:var(--green);min-height:28px}.actions-title{color:var(--muted);font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin:18px 0 9px}.action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.action{border-radius:12px;padding:12px;text-align:left;min-height:66px;font-weight:800;color:#16203f}.action small{display:block;font-weight:600;font-size:.75rem;margin-top:4px;opacity:.85}.a-green{background:var(--green)}.a-gold{background:var(--gold)}.a-blue{background:var(--blue)}.a-pink{background:#ff8bc2}.a-red{background:#ff8a8a}.a-dark{background:#394775;color:white}.a-neutral{background:#dbe4ff}.modal-note{color:var(--muted);font-size:.8rem;line-height:1.45;margin-top:12px}.hidden{display:none!important}footer{text-align:center;color:#8794c4;font-size:.78rem;padding:18px 0 4px}
-@media(max-width:900px){.layout{grid-template-columns:1fr}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media(max-width:560px){.wrap{padding:13px}header{align-items:flex-start;flex-direction:column}.scoreboard{gap:8px}.team{padding:10px;flex-wrap:wrap}.score{font-size:1.6rem}.select-team{width:100%}.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.tile{min-height:82px}.panel{padding:12px}.action-grid{grid-template-columns:1fr 1fr}.action{padding:10px;font-size:.88rem}}
+:root{--bg:#10162f;--panel:#1a2347;--ink:#f7f8ff;--muted:#b8c3e8;--gold:#ffd166;--blue:#4cc9f0;--pink:#f72585;--green:#80ed99;--line:#3a4779}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 0 0,#263b79,transparent 38%),radial-gradient(circle at 100% 100%,#4a1f64,transparent 34%),var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",Arial,sans-serif}button,input{font:inherit}button{border:0;cursor:pointer;transition:filter .12s,transform .12s}button:hover{filter:brightness(1.08)}button:active{transform:scale(.98)}button:focus-visible{outline:3px solid white;outline-offset:3px}.wrap{max-width:1200px;margin:auto;padding:22px}header{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:12px}.logo{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--gold);color:#18203f;font-weight:900;font-size:23px}h1{font-size:clamp(1.35rem,3vw,2rem);margin:0;letter-spacing:-.04em}.subtitle{color:var(--muted);font-size:.92rem;margin-top:4px}.pill{padding:9px 12px;border:1px solid #445181;border-radius:999px;background:#29345f;color:var(--muted);font-size:.82rem}.scoreboard{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:18px}.team{background:rgba(26,35,71,.95);border:2px solid transparent;border-radius:18px;padding:14px;display:flex;align-items:center;gap:12px;min-width:0}.team.active{border-color:var(--gold);box-shadow:0 0 0 3px #ffd16620}.dot{width:13px;height:13px;border-radius:50%;flex:none}.team-a .dot{background:var(--blue)}.team-b .dot{background:var(--pink)}.team-info{flex:1;min-width:0}.team-name{width:100%;background:transparent;border:0;border-bottom:1px solid #46527f;color:white;padding:4px 0 7px;font-weight:800;outline:none}.score-label{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;margin-top:7px}.score{font-size:2rem;font-weight:900;line-height:1.1;margin-top:2px}.select-team{background:#303d70;color:white;border-radius:9px;padding:9px 10px;font-size:.78rem}.active .select-team{background:var(--gold);color:#18203f;font-weight:900}.layout{display:grid;grid-template-columns:minmax(0,1fr) 275px;gap:16px;align-items:start}.panel{background:rgba(26,35,71,.9);border:1px solid #354373;border-radius:20px;padding:17px}.heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}h2{margin:0;font-size:1.08rem}.small{font-size:.82rem;color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.tile{position:relative;min-height:105px;border-radius:15px;color:#152044;background:linear-gradient(145deg,#ffe08a,#ffb703);box-shadow:0 5px 0 #b7770b;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;font-size:1.65rem;font-weight:900;padding:8px;text-align:center}.tile .tile-sub{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;font-weight:850}.tile.special{background:linear-gradient(145deg,#f9a8d4,#f72585);color:#35102b;box-shadow:0 5px 0 #991b5b}.tile.zero{background:linear-gradient(145deg,#b8c7ff,#7389ff);color:#111c4b;box-shadow:0 5px 0 #4655a8}.tile.bonus{background:linear-gradient(145deg,#a7f3d0,#34d399);color:#063d30;box-shadow:0 5px 0 #12805d}.tile.used{background:#313d67;color:#7f8bb8;box-shadow:0 5px 0 #20294c;cursor:default}.tile.used .tile-sub{color:#9ba6cf}.side h2{margin-bottom:12px}.action{margin-bottom:15px}.action label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:6px}.row{display:flex;gap:7px}input[type=number]{width:100%;min-width:0;border:1px solid #46527f;border-radius:10px;padding:10px;background:#111a3b;color:white}.btn{border-radius:10px;padding:10px 12px;font-weight:800}.gold{background:var(--gold);color:#18203f}.blue{background:var(--blue);color:#10203e}.pink{background:var(--pink);color:white}.dark{background:#303d70;color:white}.red{background:#8c2f45;color:white}.block{width:100%;margin-top:6px}.help{background:#111a3b;color:var(--muted);padding:12px;border-radius:12px;font-size:.8rem;line-height:1.5}.status{color:var(--green);font-size:.85rem;min-height:22px;margin-top:12px}.modal{position:fixed;inset:0;background:#040716d9;display:none;align-items:center;justify-content:center;padding:16px;z-index:10;overflow:auto}.modal.open{display:flex}.card{width:min(720px,100%);background:#1b254d;border:1px solid #55659a;border-radius:23px;padding:clamp(18px,4vw,30px);box-shadow:0 24px 90px #0008;max-height:95vh;overflow:auto}.modal-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.tag{color:var(--gold);font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;font-weight:900}.close{background:#303d70;color:white;border-radius:9px;padding:8px 11px}.question{font-size:clamp(1.35rem,3.4vw,2rem);line-height:1.3;margin:19px 0}.question-image{display:none;max-width:100%;max-height:260px;object-fit:contain;border-radius:14px;margin:0 auto 18px;background:#111a3b}.answer-box{background:#111a3b;border:1px dashed #6877ac;border-radius:14px;padding:15px;margin-bottom:14px}.answer-label{color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px}.answer{font-size:1.3rem;font-weight:900;color:var(--green)}.modal-actions{display:flex;flex-wrap:wrap;gap:8px}.modal-actions .btn{flex:1 1 145px}.event-title{font-size:clamp(1.5rem,4vw,2.3rem);font-weight:950;margin:22px 0 10px}.event-desc{color:var(--muted);line-height:1.55;margin-bottom:20px}.event-icon{font-size:3.2rem;margin-top:18px}.event-controls{display:flex;flex-wrap:wrap;gap:9px}.event-controls .btn{flex:1 1 150px}footer{text-align:center;color:#8794c4;font-size:.77rem;padding:18px 0 4px}@media(max-width:850px){.layout{grid-template-columns:1fr}.side{order:-1}}@media(max-width:560px){.wrap{padding:13px}header{align-items:flex-start;flex-direction:column}.scoreboard{gap:8px}.team{padding:10px;flex-wrap:wrap}.score{font-size:1.6rem}.select-team{width:100%}.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.tile{min-height:88px}.panel{padding:12px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header><div class="brand"><div class="logo">FG</div><div><h1>Force &amp; Gravity Challenge</h1><div class="subtitle">A mystery-tile Science team game</div></div></div><div class="pill">20 mystery tiles · Science</div></header>
+<header><div class="brand"><div class="logo">FG</div><div><h1>Force &amp; Gravity Challenge</h1><div class="subtitle">Pick a tile. Reveal the surprise. Win points.</div></div></div><div class="pill">Science Team Game · 25 tiles</div></header>
 <section class="scoreboard">
-  <div class="team team-a active" id="teamCard0"><div class="team-dot"></div><div class="team-info"><input class="team-name" id="teamName0" value="Team Blue" maxlength="24" aria-label="Team Blue name"><div class="score-label">Score</div><div class="score" id="score0">0</div></div><button class="select-team" onclick="setActiveTeam(0)">ACTIVE TEAM</button></div>
-  <div class="team team-b" id="teamCard1"><div class="team-dot"></div><div class="team-info"><input class="team-name" id="teamName1" value="Team Pink" maxlength="24" aria-label="Team Pink name"><div class="score-label">Score</div><div class="score" id="score1">0</div></div><button class="select-team" onclick="setActiveTeam(1)">SELECT TEAM</button></div>
+ <div class="team team-a active" id="teamCard0"><div class="dot"></div><div class="team-info"><input class="team-name" id="teamName0" aria-label="Team 1 name" value="Team Blue" maxlength="24"><div class="score-label">Score</div><div class="score" id="score0">0</div></div><button class="select-team" onclick="setActiveTeam(0)">ACTIVE TEAM</button></div>
+ <div class="team team-b" id="teamCard1"><div class="dot"></div><div class="team-info"><input class="team-name" id="teamName1" aria-label="Team 2 name" value="Team Pink" maxlength="24"><div class="score-label">Score</div><div class="score" id="score1">0</div></div><button class="select-team" onclick="setActiveTeam(1)">SELECT TEAM</button></div>
 </section>
 <div class="layout">
-<main class="panel"><div class="panel-heading"><h2>Choose a mystery tile</h2><div class="small"><span id="remaining">20</span> remaining</div></div><div class="grid" id="questionGrid"></div><div class="status" id="status" role="status" aria-live="polite">Choose the active team, then select any numbered tile.</div><div class="rules"><strong>How to play:</strong> The tile hides both the question and its reward. Select a team, open a tile, answer the question, then choose an action inside that tile. Special tiles may award bonus points, steal points, or reset a team's score.</div></main>
-<aside class="panel"><h2>Game settings</h2><div class="rules" style="margin-top:12px"><strong>Scoring actions are inside each question.</strong><br>Use the buttons in the opened tile to award points, give a bonus, steal from the opponent, or set a team's score to zero.</div><button class="action a-red" style="width:100%;margin-top:12px;text-align:center" onclick="resetGame()">Reset entire game</button><div class="rules">The tile number does not reveal its question or special action. Completed tiles are marked with a check.</div></aside>
+<main class="panel"><div class="heading"><h2>Choose a mystery tile</h2><div class="small"><span id="remaining">25</span> remaining</div></div><div class="grid" id="grid"></div><div class="status" id="status" role="status" aria-live="polite">Choose the active team, then select any tile.</div></main>
+<aside class="panel side"><h2>Teacher controls</h2>
+<div class="action"><label for="points">Manual points</label><div class="row"><input id="points" type="number" min="1" max="1000" value="10"><button class="btn gold" onclick="addPoints()">Add</button></div></div>
+<div class="action"><label>Give a bonus</label><button class="btn blue block" onclick="bonusPoints(5)">+5 bonus points</button><button class="btn blue block" onclick="bonusPoints(10)">+10 bonus points</button></div>
+<div class="action"><label>Active team's score</label><button class="btn dark block" onclick="resetActiveScore()">Set score to zero</button></div>
+<div class="action"><label>Game controls</label><button class="btn red block" onclick="resetGame()">Reset all tiles and scores</button></div>
+<div class="help"><strong>How to play</strong><br>Teams take turns choosing a tile. The tile's content stays hidden until clicked. A tile may contain a question or a surprise score event. Select the team before opening a tile. Questions are worth +10 points for a correct answer.</div>
+</aside>
 </div><footer>Force &amp; Gravity Challenge · Classroom game · No account required</footer>
 </div>
 
-<div class="modal" id="questionModal" role="dialog" aria-modal="true" aria-labelledby="questionText">
-<div class="modal-card">
-  <div class="modal-top"><div class="q-label" id="questionNumber">Mystery tile 1</div><button class="close" onclick="closeQuestion()">Close ✕</button></div>
-  <div class="question" id="questionText"></div><img class="q-image" id="questionImage" alt="Science illustration for the question">
-  <div class="answer-box"><div class="answer-label">Correct answer</div><div class="answer" id="answerText" style="visibility:hidden"></div><button class="action a-neutral" id="revealButton" style="margin-top:10px;min-height:auto" onclick="revealAnswer()">Reveal answer</button></div>
-  <div class="actions-title">Choose an action for this tile</div>
-  <div class="action-grid" id="actionGrid"></div>
-  <div class="modal-note">Special action tiles can change either team's score. Use the active-team selector at the top before opening a tile. The question and its action remain hidden until you open the tile.</div>
+<div class="modal" id="questionModal" role="dialog" aria-modal="true" aria-labelledby="questionText"><div class="card">
+<div class="modal-top"><div class="tag" id="questionNumber">Question</div><button class="close" onclick="closeModal('questionModal')">Close ✕</button></div>
+<div class="question" id="questionText"></div><img class="question-image" id="questionImage" alt="Science illustration for the question">
+<div class="answer-box"><div class="answer-label">Correct answer</div><div class="answer" id="answerText" style="visibility:hidden"></div><button class="btn gold" id="revealButton" onclick="revealAnswer()">Reveal answer</button></div>
+<div class="modal-actions"><button class="btn blue" onclick="awardQuestion()">Correct answer · +10 points</button><button class="btn dark" onclick="markQuestionWrong()">Incorrect / no points</button></div><div class="small" style="margin-top:10px">Choose the scoring option after checking the team's answer.</div>
+</div></div>
+
+<div class="modal" id="eventModal" role="dialog" aria-modal="true" aria-labelledby="eventTitle"><div class="card">
+<div class="modal-top"><div class="tag">Mystery event</div><button class="close" onclick="closeModal('eventModal')">Close ✕</button></div>
+<div class="event-icon" id="eventIcon">🎁</div><div class="event-title" id="eventTitle"></div><div class="event-desc" id="eventDesc"></div><div class="event-controls" id="eventControls"></div>
 </div></div>
 
 <script>
-const questions = [
- {q:"What force pulls objects towards each other?",a:"Gravity",img:"",kind:"normal"},
- {q:"What is a push or a pull called?",a:"A force",img:"",kind:"normal"},
- {q:"What shows the direction of a force in a diagram?",a:"An arrow",img:"",kind:"bonus5"},
- {q:"What is the shape of the Earth?",a:"A sphere",img:"https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?auto=format&fit=crop&w=900&q=80",kind:"normal"},
- {q:"In which direction does Earth's gravity act?",a:"Towards the centre",img:"https://images.unsplash.com/photo-1614732484003-ef9881555dc3?auto=format&fit=crop&w=900&q=80",kind:"normal"},
- {q:"Which force keeps the Moon in orbit around Earth?",a:"Gravity",img:"https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=900&q=80",kind:"bonus10"},
- {q:"How is the gravitational force of an object with a large mass?",a:"Strong",img:"",kind:"normal"},
- {q:"How is the gravitational force of a small-mass object, such as a pencil?",a:"Weak",img:"",kind:"normal"},
- {q:"What happens to gravity as an object moves farther from Earth's centre?",a:"It weakens",img:"https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=80",kind:"normal"},
- {q:"How strong is Earth's gravity near its surface?",a:"Strong",img:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",kind:"steal"},
- {q:"In which direction does an apple fall from a tree?",a:"Downwards",img:"",kind:"normal"},
- {q:"Which property of an object affects its gravitational force?",a:"Its mass",img:"",kind:"bonus5"},
- {q:"What does the word “mass” mean in Uzbek?",a:"Massa",img:"",kind:"normal"},
- {q:"What does the word “force” mean in Uzbek?",a:"Kuch",img:"",kind:"normal"},
- {q:"What happens to Earth's gravitational pull on a spacecraft as it moves farther away?",a:"It decreases",img:"https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=900&q=80",kind:"normal"},
- {q:"Which instrument can measure force?",a:"A force meter",img:"",kind:"reset"},
- {q:"What is the unit of force?",a:"The newton",img:"",kind:"normal"},
- {q:"What force opposes motion between surfaces in contact?",a:"Friction",img:"",kind:"bonus10"},
- {q:"What is the path of an object moving around a planet called?",a:"An orbit",img:"https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=900&q=80",kind:"steal"},
- {q:"What happens to an object's weight if gravitational field strength decreases?",a:"It decreases",img:"",kind:"reset"}
+const questionTiles = [
+ {type:"question",q:"What force pulls objects towards each other?",a:"Gravity",img:"gravity"},
+ {type:"question",q:"What is a push or a pull called?",a:"A force",img:""},
+ {type:"question",q:"What shows the direction of a force in a diagram?",a:"An arrow",img:"arrow"},
+ {type:"question",q:"What is the shape of the Earth?",a:"A sphere",img:"earth"},
+ {type:"question",q:"In which direction does Earth's gravity act?",a:"Towards the centre",img:"earth"},
+ {type:"event",event:"steal20"},
+ {type:"question",q:"Which force keeps the Moon in orbit around Earth?",a:"Gravity",img:"orbit"},
+ {type:"question",q:"How is the gravitational force of an object with a large mass?",a:"Strong",img:""},
+ {type:"question",q:"How is the gravitational force of a small-mass object, such as a pencil?",a:"Weak",img:""},
+ {type:"event",event:"zero"},
+ {type:"question",q:"What happens to gravity as an object moves farther from Earth's centre?",a:"It weakens",img:"orbit"},
+ {type:"question",q:"How strong is Earth's gravity near its surface?",a:"Strong",img:"earth"},
+ {type:"question",q:"In which direction does an apple fall from a tree?",a:"Downwards",img:"apple"},
+ {type:"event",event:"bonus15"},
+ {type:"question",q:"Which property of an object affects its gravitational force?",a:"Its mass",img:""},
+ {type:"question",q:"What does the word “mass” mean in Uzbek?",a:"Massa",img:""},
+ {type:"question",q:"What does the word “force” mean in Uzbek?",a:"Kuch",img:""},
+ {type:"event",event:"stealAll"},
+ {type:"question",q:"What happens to Earth's gravitational pull on a spacecraft as it moves farther away?",a:"It decreases",img:"orbit"},
+ {type:"event",event:"bonus10"},
+ {type:"question",q:"What is the name of the path an object follows around a planet?",a:"An orbit",img:"orbit"},
+ {type:"question",q:"Which has more mass: a truck or a pencil?",a:"A truck",img:""},
+ {type:"event",event:"zeroBoth"},
+ {type:"question",q:"What force keeps us on the ground instead of floating away?",a:"Gravity",img:"gravity"},
+ {type:"event",event:"double"}
 ];
-// Each special reward is hidden until a tile is opened.
-let scores=[0,0],activeTeam=0,used=new Set(),current=null;
+
+const eventInfo = {
+ steal20:{icon:"🦹",title:"Take 20 points from the other team!",desc:"A score-steal tile! Transfer up to 20 points from the opposing team to the active team.",action:"steal",amount:20},
+ zero:{icon:"💥",title:"Your team's score goes to ZERO!",desc:"Oh no! The active team's score is reset to zero.",action:"zero"},
+ bonus15:{icon:"🎉",title:"Bonus! Add 15 points!",desc:"Good luck is on your side. Add 15 points to the active team.",action:"bonus",amount:15},
+ stealAll:{icon:"🪄",title:"Steal up to 10 points!",desc:"Take up to 10 points from the opposing team. The other team's score cannot go below zero.",action:"steal",amount:10},
+ bonus10:{icon:"⭐",title:"Bonus! Add 10 points!",desc:"Add 10 points to the active team's score.",action:"bonus",amount:10},
+ zeroBoth:{icon:"🔄",title:"Both teams lose their points!",desc:"A dramatic twist: both team scores are reset to zero.",action:"zeroBoth"},
+ double:{icon:"🚀",title:"Double your team's score!",desc:"The active team's current score is doubled.",action:"double"}
+};
+let scores=[0,0],activeTeam=0,used=new Set(),currentIndex=null,currentEvent=null;
 const $=id=>document.getElementById(id);
-function name(i){return $("teamName"+i).value.trim()||("Team "+(i+1))}
-function status(msg){$("status").textContent=msg}
-function renderScores(){scores.forEach((v,i)=>$("score"+i).textContent=v);[0,1].forEach(i=>{$("teamCard"+i).classList.toggle("active",i===activeTeam);document.querySelectorAll(".select-team")[i].textContent=i===activeTeam?"ACTIVE TEAM":"SELECT TEAM"})}
-function setActiveTeam(i){activeTeam=i;renderScores();status(name(i)+" is now the active team.")}
-function renderGrid(){const g=$("questionGrid");g.innerHTML="";questions.forEach((q,i)=>{let b=document.createElement("button");b.className="tile"+(used.has(i)?" used":"");b.disabled=used.has(i);b.innerHTML=used.has(i)?"✓<span>Completed</span>":(i+1)+"<span>Mystery tile</span>";b.setAttribute("aria-label",used.has(i)?"Completed tile":"Open mystery tile "+(i+1));b.onclick=()=>openQuestion(i);g.appendChild(b)});$("remaining").textContent=questions.length-used.size}
-function openQuestion(i){if(used.has(i))return;current=i;const q=questions[i];$("questionNumber").textContent="Mystery tile "+(i+1)+" · "+name(activeTeam);$("questionText").textContent=q.q;$("answerText").textContent=q.a;$("answerText").style.visibility="hidden";$("revealButton").classList.remove("hidden");const im=$("questionImage");if(q.img){im.src=q.img;im.style.display="block";im.onerror=()=>{im.style.display="none"}}else{im.removeAttribute("src");im.style.display="none"}renderActions(q.kind);$("questionModal").classList.add("open")}
-function revealAnswer(){$("answerText").style.visibility="visible";$("revealButton").classList.add("hidden")}
-function renderActions(kind){const g=$("actionGrid");g.innerHTML="";
- const add=(title,detail,cls,fn)=>{const b=document.createElement("button");b.className="action "+cls;b.innerHTML=title+"<small>"+detail+"</small>";b.onclick=fn;g.appendChild(b)};
- add("Correct answer · +10","Add 10 points to "+name(activeTeam),"a-green",()=>finish("award",10));
- add("Bonus · +5","Extra points for "+name(activeTeam),"a-gold",()=>finish("award",5));
- add("Bonus · +10","Big bonus for "+name(activeTeam),"a-blue",()=>finish("award",10));
- add("Steal 10 points","Transfer up to 10 points from opponent","a-pink",()=>finish("steal",10));
- add("Set opponent to 0","Reset "+name(1-activeTeam)+"'s score","a-red",()=>finish("opponentZero",0));
- add("Set active team to 0","Reset "+name(activeTeam)+"'s score","a-dark",()=>finish("activeZero",0));
- if(kind==="bonus5") add("SPECIAL TILE · +5","Mystery bonus reward","a-gold",()=>finish("award",5));
- if(kind==="bonus10") add("SPECIAL TILE · +20","Double bonus reward","a-blue",()=>finish("award",20));
- if(kind==="steal") add("SPECIAL TILE · STEAL 20","Transfer up to 20 points from opponent","a-pink",()=>finish("steal",20));
- if(kind==="reset") add("SPECIAL TILE · RESET","Set the active team's score to zero","a-red",()=>finish("activeZero",0));
+function teamName(i){return $("teamName"+i).value.trim()||"Team "+(i+1)}
+function status(s){$("status").textContent=s}
+function renderScores(){scores.forEach((s,i)=>$("score"+i).textContent=s);[0,1].forEach(i=>{$("teamCard"+i).classList.toggle("active",activeTeam===i);$("teamCard"+i).querySelector(".select-team").textContent=activeTeam===i?"ACTIVE TEAM":"SELECT TEAM"})}
+function setActiveTeam(i){activeTeam=i;renderScores();status(teamName(i)+" is the active team.")}
+function renderGrid(){const grid=$("grid");grid.innerHTML="";questionTiles.forEach((tile,i)=>{const b=document.createElement("button");let cls="tile";if(tile.type==="event"){if(["zero","zeroBoth"].includes(tile.event))cls+=" zero";else if(tile.event.startsWith("bonus"))cls+=" bonus";else cls+=" special"}if(used.has(i))cls+=" used";b.className=cls;b.disabled=used.has(i);b.innerHTML=used.has(i)?"✓<span class='tile-sub'>Completed</span>":(i+1)+"<span class='tile-sub'>Mystery tile</span>";b.setAttribute("aria-label",used.has(i)?"Completed tile":"Mystery tile "+(i+1));b.onclick=()=>openTile(i);grid.appendChild(b)});$("remaining").textContent=questionTiles.length-used.size}
+function openTile(i){if(used.has(i))return;currentIndex=i;const tile=questionTiles[i];if(tile.type==="question")showQuestion(tile,i);else showEvent(tile.event,i)}
+function showQuestion(tile,i){$("questionNumber").textContent="Tile "+(i+1)+" · "+teamName(activeTeam);$("questionText").textContent=tile.q;$("answerText").textContent=tile.a;$("answerText").style.visibility="hidden";$("revealButton").style.display="inline-block";const img=$("questionImage");img.style.display="none";img.removeAttribute("src");const svg=illustration(tile.img);if(svg){img.src="data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(svg);img.style.display="block"}$("questionModal").classList.add("open")}
+function revealAnswer(){$("answerText").style.visibility="visible";$("revealButton").style.display="none"}
+function finishQuestion(gotPoints){used.add(currentIndex);if(gotPoints){scores[activeTeam]+=10;status(teamName(activeTeam)+" answered correctly and earned 10 points.")}else status("Tile completed. No points awarded.");renderScores();renderGrid();closeModal("questionModal");currentIndex=null}
+function awardQuestion(){finishQuestion(true)}function markQuestionWrong(){finishQuestion(false)}
+function showEvent(key,i){currentEvent=key;const e=eventInfo[key];$("eventIcon").textContent=e.icon;$("eventTitle").textContent=e.title;$("eventDesc").textContent=e.desc;$("eventControls").innerHTML="";const b=document.createElement("button");b.className="btn gold";b.textContent="Apply event";b.onclick=applyEvent;$("eventControls").appendChild(b);const skip=document.createElement("button");skip.className="btn dark";skip.textContent="Skip event";skip.onclick=()=>{used.add(currentIndex);renderGrid();closeModal("eventModal");status("Event skipped.");currentIndex=null};$("eventControls").appendChild(skip);$("questionNumber");$("eventModal").classList.add("open")}
+function applyEvent(){const e=eventInfo[currentEvent];let msg="";if(e.action==="steal"){const opponent=1-activeTeam;const amount=Math.min(e.amount,scores[opponent]);scores[opponent]-=amount;scores[activeTeam]+=amount;msg=teamName(activeTeam)+" took "+amount+" points from "+teamName(opponent)+"."}else if(e.action==="zero"){scores[activeTeam]=0;msg=teamName(activeTeam)+"'s score is now zero."}else if(e.action==="bonus"){scores[activeTeam]+=e.amount;msg=teamName(activeTeam)+" received "+e.amount+" bonus points."}else if(e.action==="zeroBoth"){scores=[0,0];msg="Both teams' scores are now zero."}else if(e.action==="double"){scores[activeTeam]*=2;msg=teamName(activeTeam)+"'s score has been doubled."}used.add(currentIndex);renderScores();renderGrid();closeModal("eventModal");status(msg);currentIndex=null;currentEvent=null}
+function closeModal(id){$(id).classList.remove("open")}
+function readPoints(){const n=parseInt($("points").value,10);return Number.isFinite(n)&&n>0?Math.min(n,1000):0}
+function addPoints(){const n=readPoints();if(!n)return status("Enter a number greater than zero.");scores[activeTeam]+=n;renderScores();status(teamName(activeTeam)+" gained "+n+" points.")}
+function bonusPoints(n){scores[activeTeam]+=n;renderScores();status(teamName(activeTeam)+" received "+n+" bonus points.")}
+function resetActiveScore(){if(!confirm("Set "+teamName(activeTeam)+"'s score to zero?"))return;scores[activeTeam]=0;renderScores();status(teamName(activeTeam)+"'s score was reset to zero.")}
+function resetGame(){if(!confirm("Reset all scores and reopen every mystery tile?"))return;scores=[0,0];activeTeam=0;used.clear();currentIndex=null;currentEvent=null;renderScores();renderGrid();closeModal("questionModal");closeModal("eventModal");status("Game reset. "+teamName(0)+" starts.")}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal("questionModal");closeModal("eventModal")}});
+$("questionModal").addEventListener("click",e=>{if(e.target===$("questionModal"))closeModal("questionModal")});
+$("eventModal").addEventListener("click",e=>{if(e.target===$("eventModal"))closeModal("eventModal")});
+function illustration(type){
+const common='xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 220"';
+const bg='<rect width="620" height="220" rx="18" fill="#111a3b"/>';
+const text=(x,y,t,size=16,color="#f7f8ff")=>`<text x="${x}" y="${y}" text-anchor="middle" font-family="Arial,sans-serif" font-size="${size}" font-weight="700" fill="${color}">${t}</text>`;
+let content="";
+if(type==="earth")content='<circle cx="310" cy="105" r="65" fill="#4cc9f0" stroke="#d6f6ff" stroke-width="3"/><path d="M278 52l24 10-8 22-20 6-9 20 15 17-5 22 22 20 18-18 8-25 22-10 8-28-20-18-5-16z" fill="#80ed99"/>'+text(310,202,"EARTH",16);
+if(type==="gravity")content='<circle cx="310" cy="100" r="55" fill="#4cc9f0"/><path d="M310 20V45 M298 34l12 12 12-12 M310 155v30 M298 173l12 12 12-12 M230 100h25 M243 88l12 12-12 12 M365 100h25 M378 88l12 12-12 12" stroke="#ffd166" stroke-width="5" fill="none" stroke-linecap="round"/>'+text(310,207,"GRAVITY PULLS OBJECTS TOGETHER",14);
+if(type==="arrow")content='<rect x="75" y="75" width="110" height="70" rx="12" fill="#f72585"/><path d="M200 110H445 M420 85l28 25-28 25" fill="none" stroke="#ffd166" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>'+text(310,48,"FORCE DIRECTION",18);
+if(type==="orbit")content='<circle cx="310" cy="110" r="34" fill="#4cc9f0"/><ellipse cx="310" cy="110" rx="135" ry="65" fill="none" stroke="#b8c3e8" stroke-width="3" stroke-dasharray="7 7"/><circle cx="430" cy="82" r="16" fill="#ffd166"/><path d="M420 48l15 18-20 2" fill="none" stroke="#80ed99" stroke-width="4"/>'+text(310,205,"OBJECT IN ORBIT",15);
+if(type==="apple")content='<path d="M310 38v38 M310 45q35-25 55-10" stroke="#80ed99" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M310 80 C265 55 230 95 245 140 C255 185 292 185 310 166 C328 185 365 185 375 140 C390 95 355 55 310 80Z" fill="#f72585"/><path d="M310 185v20 M298 196l12 10 12-10" stroke="#ffd166" stroke-width="5" fill="none" stroke-linecap="round"/>'+text(310,30,"FALLING APPLE",14);
+if(!content)return "";return `<svg ${common}>${bg}${content}</svg>`;
 }
-function finish(action,n){if(current===null)return;const qNo=current+1,team=name(activeTeam),opp=1-activeTeam;let msg="";
- if(action==="award"){scores[activeTeam]+=n;msg=team+" earned "+n+" points."}
- else if(action==="steal"){const moved=Math.min(n,scores[opp]);scores[opp]-=moved;scores[activeTeam]+=moved;msg=team+" stole "+moved+" points from "+name(opp)+"."}
- else if(action==="activeZero"){scores[activeTeam]=0;msg=team+"'s score was set to zero."}
- else if(action==="opponentZero"){scores[opp]=0;msg=name(opp)+"'s score was set to zero."}
- used.add(current);current=null;renderScores();renderGrid();closeQuestion();status("Tile "+qNo+" completed. "+msg)}
-function closeQuestion(){$("questionModal").classList.remove("open")}
-function resetGame(){if(!confirm("Reset both scores and reopen all 20 mystery tiles?"))return;scores=[0,0];activeTeam=0;used.clear();current=null;renderScores();renderGrid();closeQuestion();status("Game reset. "+name(0)+" starts.")}
-$("questionModal").addEventListener("click",e=>{if(e.target===$("questionModal"))closeQuestion()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeQuestion()});renderScores();renderGrid();
+renderScores();renderGrid();
 </script>
 </body>
 </html>'''
-
-path = Path("/mnt/data/index.html")
-path.write_text(html, encoding="utf-8")
-print(f"Updated {path} ({path.stat().st_size:,} bytes)")
+p = Path("/mnt/data/index.html")
+p.write_text(html, encoding="utf-8")
+print(f"Updated {p} ({p.stat().st_size:,} bytes)")
