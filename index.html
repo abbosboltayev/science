@@ -5,334 +5,198 @@ html = r'''<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Force & Gravity — Classroom Game</title>
+<title>Force & Gravity — Team Quiz</title>
 <style>
-  :root {
-    --bg: #10162f;
-    --panel: #1a2347;
-    --panel-2: #222e5d;
-    --ink: #f7f8ff;
-    --muted: #b8c3e8;
-    --accent: #ffd166;
-    --blue: #4cc9f0;
-    --pink: #f72585;
-    --green: #80ed99;
-    --red: #ff6b6b;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; min-height: 100vh; color: var(--ink);
-    font-family: Inter, "Segoe UI", Arial, sans-serif;
-    background: radial-gradient(circle at top left, #263b79 0, transparent 38%),
-                radial-gradient(circle at bottom right, #4a1f64 0, transparent 34%), var(--bg);
-  }
-  button, input { font: inherit; }
-  button { cursor: pointer; border: 0; transition: transform .12s, filter .12s; }
-  button:hover { filter: brightness(1.08); }
-  button:active { transform: scale(.98); }
-  .wrap { max-width: 1180px; margin: auto; padding: 24px; }
-  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
-  .brand { display: flex; align-items: center; gap: 13px; }
-  .logo { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 16px; background: var(--accent); color: #18203f; font-size: 28px; font-weight: 900; }
-  h1 { margin: 0; font-size: clamp(1.4rem, 3vw, 2.1rem); letter-spacing: -.04em; }
-  .subtitle { color: var(--muted); margin-top: 4px; font-size: .95rem; }
-  .pill { background: #29345f; color: var(--muted); border: 1px solid #445181; border-radius: 999px; padding: 9px 13px; font-size: .85rem; white-space: nowrap; }
-  .scoreboard { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
-  .team { background: rgba(26,35,71,.92); border: 2px solid transparent; border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 13px; min-width: 0; }
-  .team.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,209,102,.12); }
-  .team-dot { width: 13px; height: 13px; border-radius: 50%; flex: 0 0 auto; }
-  .team-a .team-dot { background: var(--blue); }
-  .team-b .team-dot { background: var(--pink); }
-  .team-info { flex: 1; min-width: 0; }
-  .team-name { width: 100%; min-width: 0; color: var(--ink); background: transparent; border: 0; border-bottom: 1px solid #46527f; padding: 4px 0 7px; font-weight: 700; outline: none; }
-  .score { font-size: 2rem; font-weight: 850; line-height: 1.1; margin-top: 8px; }
-  .score-label { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .12em; }
-  .select-team { background: #303d70; color: white; border-radius: 10px; padding: 9px 11px; font-size: .8rem; }
-  .active .select-team { background: var(--accent); color: #18203f; font-weight: 800; }
-  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
-  .game-panel, .side-panel { background: rgba(26,35,71,.88); border: 1px solid #354373; border-radius: 22px; padding: 18px; }
-  .panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
-  h2 { margin: 0; font-size: 1.1rem; }
-  .small { color: var(--muted); font-size: .84rem; }
-  .grid { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 10px; }
-  .tile {
-    min-height: 105px; border-radius: 15px; color: #152044; font-size: 1.7rem; font-weight: 900;
-    background: linear-gradient(145deg, #ffe08a, #ffb703); box-shadow: 0 5px 0 #b7770b;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-  }
-  .tile span { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; }
-  .tile.used { background: #313d67; color: #7f8bb8; box-shadow: 0 5px 0 #20294c; cursor: default; }
-  .tile.used span { color: #7f8bb8; }
-  .tile:focus-visible, button:focus-visible { outline: 3px solid white; outline-offset: 3px; }
-  .side-panel h2 { margin-bottom: 13px; }
-  .action-group { margin-bottom: 17px; }
-  .action-group label { display: block; font-size: .82rem; color: var(--muted); margin-bottom: 7px; }
-  .field-row { display: flex; gap: 7px; }
-  input[type="number"] { width: 100%; min-width: 0; border: 1px solid #46527f; border-radius: 10px; padding: 10px; background: #111a3b; color: white; }
-  .btn { border-radius: 10px; padding: 10px 12px; font-weight: 750; }
-  .btn-blue { background: var(--blue); color: #10203e; }
-  .btn-pink { background: var(--pink); color: white; }
-  .btn-gold { background: var(--accent); color: #18203f; }
-  .btn-dark { background: #303d70; color: white; }
-  .btn-red { background: #8c2f45; color: white; }
-  .btn-block { width: 100%; margin-top: 7px; }
-  .help { background: #111a3b; color: var(--muted); padding: 12px; border-radius: 12px; font-size: .82rem; line-height: 1.5; }
-  .status { min-height: 22px; margin-top: 12px; color: var(--green); font-size: .86rem; }
-  .modal { position: fixed; inset: 0; background: rgba(4,7,22,.78); display: none; align-items: center; justify-content: center; padding: 18px; z-index: 10; }
-  .modal.open { display: flex; }
-  .modal-card { width: min(680px, 100%); background: #1b254d; border: 1px solid #55659a; border-radius: 24px; padding: clamp(20px, 4vw, 34px); box-shadow: 0 24px 90px #0008; }
-  .modal-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  .question-number { color: var(--accent); font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .13em; }
-  .close { background: #303d70; color: white; border-radius: 10px; padding: 8px 12px; }
-  .question { font-size: clamp(1.35rem, 3.4vw, 2rem); line-height: 1.3; margin: 22px 0; }
-  .answer-box { background: #111a3b; border: 1px dashed #6877ac; border-radius: 14px; padding: 17px; margin-bottom: 16px; }
-  .answer-label { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 6px; }
-  .answer { font-size: 1.4rem; font-weight: 850; color: var(--green); }
-  .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-  .modal-actions .btn { flex: 1 1 140px; }
-  footer { text-align: center; color: #8794c4; font-size: .78rem; padding: 18px 0 4px; }
-  @media (max-width: 850px) { .layout { grid-template-columns: 1fr; } .side-panel { order: -1; } }
-  @media (max-width: 560px) {
-    .wrap { padding: 14px; } header { align-items: flex-start; flex-direction: column; }
-    .scoreboard { gap: 8px; } .team { padding: 11px; flex-wrap: wrap; }
-    .score { font-size: 1.6rem; } .select-team { width: 100%; }
-    .grid { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
-    .tile { min-height: 88px; }
-    .game-panel, .side-panel { padding: 13px; }
-  }
+:root{--bg:#10162f;--panel:#1a2347;--panel2:#222e5d;--ink:#f7f8ff;--muted:#b8c3e8;--gold:#ffd166;--blue:#4cc9f0;--pink:#f72585;--green:#80ed99;--line:#3a4778}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);font-family:Inter,"Segoe UI",Arial,sans-serif;background:radial-gradient(circle at top left,#263b79 0,transparent 38%),radial-gradient(circle at bottom right,#4a1f64 0,transparent 34%),var(--bg)}
+button,input{font:inherit}button{cursor:pointer;border:0;transition:filter .12s,transform .12s}button:hover{filter:brightness(1.08)}button:active{transform:scale(.98)}button:disabled{opacity:.5;cursor:not-allowed}
+.wrap{max-width:1200px;margin:auto;padding:22px}.header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:13px}.logo{width:52px;height:52px;border-radius:16px;background:var(--gold);color:#18203f;display:grid;place-items:center;font-size:24px;font-weight:900}.title{font-size:clamp(1.4rem,3vw,2.1rem);font-weight:850;letter-spacing:-.04em}.subtitle,.muted{color:var(--muted)}.subtitle{margin-top:4px;font-size:.92rem}.pill{background:#29345f;border:1px solid #445181;border-radius:999px;padding:9px 13px;color:var(--muted);font-size:.83rem}
+.scoreboard{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:18px}.team{background:rgba(26,35,71,.95);border:2px solid transparent;border-radius:18px;padding:14px;display:flex;align-items:center;gap:12px;min-width:0}.team.active{border-color:var(--gold);box-shadow:0 0 0 3px #ffd16618}.dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}.team-a .dot{background:var(--blue)}.team-b .dot{background:var(--pink)}.team-info{flex:1;min-width:0}.team-name{width:100%;background:transparent;color:white;border:0;border-bottom:1px solid #46527f;padding:4px 0 7px;font-weight:750;outline:none}.score-label{color:var(--muted);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;margin-top:7px}.score{font-size:1.9rem;font-weight:900}.select-team{background:#303d70;color:white;border-radius:9px;padding:9px 10px;font-size:.78rem}.active .select-team{background:var(--gold);color:#18203f;font-weight:850}
+.panel{background:rgba(26,35,71,.9);border:1px solid #354373;border-radius:21px;padding:17px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.panel-head h2{font-size:1.1rem;margin:0}.small{font-size:.8rem;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.tile{position:relative;min-height:145px;border-radius:15px;background:linear-gradient(145deg,#ffe08a,#ffb703);box-shadow:0 5px 0 #b7770b;color:#17213e;padding:10px 7px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center;overflow:hidden}.tile .tile-no{font-size:1.45rem;font-weight:950}.tile .tile-title{font-size:.78rem;font-weight:850;line-height:1.2}.tile .tile-art{font-size:2.15rem;line-height:1.05}.tile.power{background:linear-gradient(145deg,#d7c5ff,#9b8cff);box-shadow:0 5px 0 #6556c8}.tile.power.steal{background:linear-gradient(145deg,#ffb9d5,#f72585);box-shadow:0 5px 0 #a80f58;color:#fff}.tile.power.zero{background:linear-gradient(145deg,#ffc1b7,#ff6b6b);box-shadow:0 5px 0 #bd4242}.tile.used{background:#313d67;color:#8793bd;box-shadow:0 5px 0 #20294c}.tile.used .tile-art{filter:grayscale(1);opacity:.5}.tile:focus-visible,button:focus-visible{outline:3px solid white;outline-offset:3px}
+.status{min-height:23px;margin-top:12px;color:var(--green);font-size:.86rem}.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.legend span{font-size:.75rem;color:var(--muted);background:#111a3b;border:1px solid #303d70;border-radius:999px;padding:7px 10px}
+.modal{position:fixed;inset:0;background:#040716c9;display:none;align-items:center;justify-content:center;padding:16px;z-index:10;overflow-y:auto}.modal.open{display:flex}.card{width:min(720px,100%);max-height:95vh;overflow-y:auto;background:#1b254d;border:1px solid #55659a;border-radius:23px;padding:clamp(18px,4vw,30px);box-shadow:0 24px 90px #0008}.modal-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.eyebrow{color:var(--gold);font-size:.78rem;font-weight:850;text-transform:uppercase;letter-spacing:.13em}.close{background:#303d70;color:white;border-radius:10px;padding:8px 12px}.question{font-size:clamp(1.3rem,3.5vw,1.9rem);line-height:1.3;margin:18px 0}.illustration{height:150px;border-radius:16px;background:linear-gradient(145deg,#243365,#111a3b);border:1px solid #3d4c82;display:flex;align-items:center;justify-content:center;margin-bottom:17px;overflow:hidden}.illustration svg{height:100%;width:100%;max-width:500px}.answer-box{background:#111a3b;border:1px dashed #6877ac;border-radius:13px;padding:14px;margin-bottom:15px}.answer-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px}.answer{font-size:1.3rem;font-weight:850;color:var(--green)}.actions-title{font-size:.85rem;font-weight:800;margin:15px 0 8px}.action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.btn{border-radius:10px;padding:11px 12px;font-weight:800;line-height:1.2}.gold{background:var(--gold);color:#18203f}.blue{background:var(--blue);color:#10203e}.pink{background:var(--pink);color:white}.purple{background:#9b8cff;color:#17153f}.red{background:#ff6b6b;color:#3a1010}.dark{background:#303d70;color:white}.note{color:var(--muted);font-size:.77rem;line-height:1.45;margin-top:12px}.power-info{padding:15px;border-radius:13px;background:#111a3b;color:var(--muted);line-height:1.5;margin-bottom:15px}.footer{text-align:center;color:#8794c4;font-size:.76rem;padding:18px 0 3px}
+@media(max-width:800px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.tile{min-height:125px}}
+@media(max-width:560px){.wrap{padding:13px}.header{align-items:flex-start;flex-direction:column}.scoreboard{gap:8px}.team{padding:10px;flex-wrap:wrap}.score{font-size:1.6rem}.select-team{width:100%}.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.tile{min-height:120px}.panel{padding:12px}.action-grid{grid-template-columns:1fr}.illustration{height:120px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div class="brand">
-      <div class="logo">FG</div>
-      <div>
-        <h1>Force &amp; Gravity Challenge</h1>
-        <div class="subtitle">A team quiz game for Science class</div>
-      </div>
-    </div>
-    <div class="pill">15 questions · Short answers</div>
+  <header class="header">
+    <div class="brand"><div class="logo">FG</div><div><div class="title">Force &amp; Gravity Challenge</div><div class="subtitle">A visual team quiz for Science class</div></div></div>
+    <div class="pill">15 questions + 10 power tiles</div>
   </header>
 
   <section class="scoreboard" aria-label="Team scores">
-    <div class="team team-a active" id="teamCard0">
-      <div class="team-dot"></div>
-      <div class="team-info">
-        <input class="team-name" id="teamName0" aria-label="Team 1 name" value="Team Blue" maxlength="24">
-        <div class="score-label">Score</div><div class="score" id="score0">0</div>
-      </div>
-      <button class="select-team" onclick="setActiveTeam(0)">ACTIVE TEAM</button>
-    </div>
-    <div class="team team-b" id="teamCard1">
-      <div class="team-dot"></div>
-      <div class="team-info">
-        <input class="team-name" id="teamName1" aria-label="Team 2 name" value="Team Pink" maxlength="24">
-        <div class="score-label">Score</div><div class="score" id="score1">0</div>
-      </div>
-      <button class="select-team" onclick="setActiveTeam(1)">SELECT TEAM</button>
-    </div>
+    <div class="team team-a active" id="teamCard0"><div class="dot"></div><div class="team-info"><input class="team-name" id="teamName0" value="Team Blue" maxlength="24" aria-label="Team Blue name"><div class="score-label">Score</div><div class="score" id="score0">0</div></div><button class="select-team" onclick="setActiveTeam(0)">ACTIVE TEAM</button></div>
+    <div class="team team-b" id="teamCard1"><div class="dot"></div><div class="team-info"><input class="team-name" id="teamName1" value="Team Pink" maxlength="24" aria-label="Team Pink name"><div class="score-label">Score</div><div class="score" id="score1">0</div></div><button class="select-team" onclick="setActiveTeam(1)">SELECT TEAM</button></div>
   </section>
 
-  <div class="layout">
-    <main class="game-panel">
-      <div class="panel-heading">
-        <h2>Choose a question</h2>
-        <div class="small"><span id="remaining">15</span> remaining</div>
-      </div>
-      <div class="grid" id="questionGrid"></div>
-      <div class="status" id="status" role="status" aria-live="polite">Team Blue starts. Select a tile to play.</div>
-    </main>
-
-    <aside class="side-panel">
-      <h2>Score controls</h2>
-      <div class="action-group">
-        <label for="points">Points</label>
-        <div class="field-row">
-          <input id="points" type="number" min="1" max="1000" value="10">
-          <button class="btn btn-gold" onclick="addPoints()">Add to active team</button>
-        </div>
-      </div>
-      <div class="action-group">
-        <label>Steal points from the opposing team</label>
-        <div class="field-row">
-          <input id="stealPoints" type="number" min="1" max="1000" value="10" aria-label="Points to steal">
-          <button class="btn btn-pink" onclick="stealPoints()">Steal</button>
-        </div>
-      </div>
-      <div class="action-group">
-        <label>Bonus points</label>
-        <button class="btn btn-blue btn-block" onclick="bonusPoints(5)">+5 bonus points</button>
-        <button class="btn btn-blue btn-block" onclick="bonusPoints(10)">+10 bonus points</button>
-      </div>
-      <div class="action-group">
-        <label>Reset a team's score</label>
-        <button class="btn btn-dark btn-block" onclick="resetActiveScore()">Set active team's score to 0</button>
-      </div>
-      <div class="action-group">
-        <label>Game controls</label>
-        <button class="btn btn-red btn-block" onclick="resetGame()">Reset entire game</button>
-      </div>
-      <div class="help">
-        <strong>How to play</strong><br>
-        1. Choose the active team.<br>
-        2. Open a question tile and ask the team to answer.<br>
-        3. Reveal the answer. Award points with the score controls.<br>
-        4. Use <em>Steal</em> to transfer points from the other team to the active team. Scores cannot go below zero when stealing.
-      </div>
-    </aside>
-  </div>
-  <footer>Force &amp; Gravity Challenge · Built for classroom use · Runs in your browser</footer>
+  <main class="panel">
+    <div class="panel-head"><h2>Choose a tile</h2><div class="small"><span id="remaining">25</span> tiles remaining</div></div>
+    <div class="grid" id="gameGrid"></div>
+    <div class="legend"><span>🟡 Question tiles</span><span>🟣 Bonus points</span><span>💗 Steal points</span><span>🔴 Reset opponent score</span></div>
+    <div class="status" id="status" role="status" aria-live="polite">Team Blue starts. Choose a tile to play.</div>
+  </main>
+  <footer class="footer">Force &amp; Gravity Challenge · Classroom game · Works in your browser</footer>
 </div>
 
-<div class="modal" id="questionModal" role="dialog" aria-modal="true" aria-labelledby="questionText">
-  <div class="modal-card">
-    <div class="modal-top">
-      <div class="question-number" id="questionNumber">Question 1</div>
-      <button class="close" onclick="closeQuestion()">Close ✕</button>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalQuestion">
+  <div class="card">
+    <div class="modal-top"><div class="eyebrow" id="modalEyebrow">Question 1</div><button class="close" onclick="closeModal()">Close ✕</button></div>
+    <div class="illustration" id="illustration"></div>
+    <div class="question" id="modalQuestion"></div>
+    <div class="answer-box"><div class="answer-label">Correct answer</div><div class="answer" id="modalAnswer" style="display:none"></div><button class="btn gold" id="revealBtn" onclick="revealAnswer()">Reveal answer</button></div>
+    <div id="questionActions">
+      <div class="actions-title">Award points or use a power</div>
+      <div class="action-grid">
+        <button class="btn gold" onclick="answerAction('correct')">Correct answer · +10</button>
+        <button class="btn purple" onclick="answerAction('bonus')">Bonus · +5</button>
+        <button class="btn pink" onclick="answerAction('steal')">Steal 5 from opponent</button>
+        <button class="btn red" onclick="answerAction('zeroOpponent')">Set opponent score to 0</button>
+        <button class="btn dark" onclick="answerAction('zeroActive')">Set active team's score to 0</button>
+        <button class="btn dark" onclick="closeModal()">Close without scoring</button>
+      </div>
+      <div class="note">These actions are available inside every question. Each question tile can be played once per game.</div>
     </div>
-    <div class="question" id="questionText"></div>
-    <div class="answer-box">
-      <div class="answer-label">Correct answer</div>
-      <div class="answer" id="answerText" style="visibility:hidden">Answer</div>
-      <button class="btn btn-gold" id="revealButton" onclick="revealAnswer()">Reveal answer</button>
+    <div id="powerActions" style="display:none">
+      <div class="power-info" id="powerDescription"></div>
+      <div class="action-grid" id="powerButtons"></div>
     </div>
-    <div class="modal-actions">
-      <button class="btn btn-blue" onclick="awardAndClose(10)">Correct · +10 points</button>
-      <button class="btn btn-dark" onclick="closeQuestion()">Skip / close</button>
-    </div>
-    <div class="small" style="margin-top:12px">The +10 button awards points to the active team and marks this tile as used.</div>
   </div>
 </div>
 
 <script>
 const questions = [
-  { q: "What force pulls objects towards each other?", a: "Gravity" },
-  { q: "What is a push or a pull called?", a: "A force" },
-  { q: "What shows the direction of a force in a diagram?", a: "An arrow" },
-  { q: "What is the shape of the Earth?", a: "A sphere" },
-  { q: "In which direction does Earth's gravity act?", a: "Towards the centre" },
-  { q: "Which force keeps the Moon in orbit around Earth?", a: "Gravity" },
-  { q: "How is the gravitational force of an object with a large mass?", a: "Strong" },
-  { q: "How is the gravitational force of a small-mass object, such as a pencil?", a: "Weak" },
-  { q: "What happens to gravity as an object moves farther from Earth's centre?", a: "It weakens" },
-  { q: "How strong is Earth's gravity near its surface?", a: "Strong" },
-  { q: "In which direction does an apple fall from a tree?", a: "Downwards" },
-  { q: "Which property of an object affects its gravitational force?", a: "Its mass" },
-  { q: "What does the word “mass” mean in Uzbek?", a: "Massa" },
-  { q: "What does the word “force” mean in Uzbek?", a: "Kuch" },
-  { q: "What happens to Earth's gravitational pull on a spacecraft as it moves farther away?", a: "It decreases" }
+ {q:"What force pulls objects towards each other?",a:"Gravity",icon:"🍎",kind:"apple"},
+ {q:"What is a push or a pull called?",a:"A force",icon:"🤜",kind:"push"},
+ {q:"What shows the direction of a force in a diagram?",a:"An arrow",icon:"➡️",kind:"arrow"},
+ {q:"What is the shape of the Earth?",a:"A sphere",icon:"🌍",kind:"earth"},
+ {q:"In which direction does Earth's gravity act?",a:"Towards the centre",icon:"🎯",kind:"centre"},
+ {q:"Which force keeps the Moon in orbit around Earth?",a:"Gravity",icon:"🌙",kind:"orbit"},
+ {q:"How is the gravitational force of an object with a large mass?",a:"Strong",icon:"🪨",kind:"large"},
+ {q:"How is the gravitational force of a small-mass object, such as a pencil?",a:"Weak",icon:"✏️",kind:"small"},
+ {q:"What happens to gravity as an object moves farther from Earth's centre?",a:"It weakens",icon:"🚀",kind:"distance"},
+ {q:"How strong is Earth's gravity near its surface?",a:"Strong",icon:"🌎",kind:"surface"},
+ {q:"In which direction does an apple fall from a tree?",a:"Downwards",icon:"🍎",kind:"down"},
+ {q:"Which property of an object affects its gravitational force?",a:"Its mass",icon:"⚖️",kind:"mass"},
+ {q:"What does the word “mass” mean in Uzbek?",a:"Massa",icon:"📘",kind:"word"},
+ {q:"What does the word “force” mean in Uzbek?",a:"Kuch",icon:"💪",kind:"word"},
+ {q:"What happens to Earth's gravitational pull on a spacecraft as it moves farther away?",a:"It decreases",icon:"🛰️",kind:"spacecraft"}
 ];
-
-let scores = [0, 0];
-let activeTeam = 0;
-let usedQuestions = new Set();
-let currentQuestion = null;
-
-const $ = (id) => document.getElementById(id);
-
-function teamName(index) {
-  return $("teamName" + index).value.trim() || ("Team " + (index + 1));
+const powerTiles = [
+ {type:"bonus5",title:"BONUS +5",icon:"⭐",description:"Bonus tile! Add 5 points to the active team."},
+ {type:"bonus10",title:"BONUS +10",icon:"🌟",description:"Big bonus! Add 10 points to the active team."},
+ {type:"steal5",title:"STEAL 5",icon:"💗",description:"Steal up to 5 points from the opposing team. The opponent's score cannot go below zero."},
+ {type:"steal10",title:"STEAL 10",icon:"🦹",description:"Steal up to 10 points from the opposing team. The opponent's score cannot go below zero."},
+ {type:"zeroOpponent",title:"OPPONENT = 0",icon:"💥",description:"Power tile! Set the opposing team's score to zero."},
+ {type:"zeroActive",title:"RESET YOUR SCORE",icon:"🔄",description:"Risk tile! Set the active team's score to zero."},
+ {type:"bonus5",title:"BONUS +5",icon:"🎁",description:"Bonus tile! Add 5 points to the active team."},
+ {type:"steal5",title:"STEAL 5",icon:"🧲",description:"Steal up to 5 points from the opposing team."},
+ {type:"bonus10",title:"BONUS +10",icon:"🏆",description:"Bonus tile! Add 10 points to the active team."},
+ {type:"zeroOpponent",title:"OPPONENT = 0",icon:"⚡",description:"Power tile! Set the opposing team's score to zero."}
+];
+const tiles = [
+ ...questions.map((item,index)=>({kind:"question",index,title:"Question "+(index+1),icon:item.icon})),
+ ...powerTiles.map((item,index)=>({kind:"power",index,title:item.title,icon:item.icon,power:item}))
+];
+// Interleave question and power tiles so power tiles appear throughout the board.
+const board = [];
+let qi=0, pi=0;
+for(let i=0;i<25;i++){
+ if((i+1)%3===0 && pi<powerTiles.length) board.push(tiles[questions.length+pi++]);
+ else if(qi<questions.length) board.push(tiles[qi++]);
+ else board.push(tiles[questions.length+pi++]);
 }
-function renderScores() {
-  scores.forEach((score, i) => $("score" + i).textContent = score);
-  $("teamCard0").classList.toggle("active", activeTeam === 0);
-  $("teamCard1").classList.toggle("active", activeTeam === 1);
-  document.querySelectorAll(".select-team").forEach((button, i) => {
-    button.textContent = activeTeam === i ? "ACTIVE TEAM" : "SELECT TEAM";
-  });
+let scores=[0,0], activeTeam=0, usedTiles=new Set(), currentTile=null;
+const $=id=>document.getElementById(id);
+function nameOf(i){return $("teamName"+i).value.trim()||("Team "+(i+1))}
+function setStatus(msg){$("status").textContent=msg}
+function renderScores(){
+ scores.forEach((s,i)=>$("score"+i).textContent=s);
+ [0,1].forEach(i=>{$("teamCard"+i).classList.toggle("active",i===activeTeam);$("teamCard"+i).querySelector(".select-team").textContent=i===activeTeam?"ACTIVE TEAM":"SELECT TEAM"});
 }
-function setActiveTeam(index) {
-  activeTeam = index;
-  renderScores();
-  setStatus(teamName(index) + " is now the active team.");
+function setActiveTeam(i){activeTeam=i;renderScores();setStatus(nameOf(i)+" is now the active team.")}
+function renderGrid(){
+ const grid=$("gameGrid");grid.innerHTML="";
+ board.forEach((tile,index)=>{
+  const b=document.createElement("button");const used=usedTiles.has(index);
+  b.className="tile"+(tile.kind==="power"?" power "+(tile.power.type.includes("steal")?"steal":tile.power.type.includes("zero")?"zero":""):"")+(used?" used":"");
+  b.disabled=used;
+  b.innerHTML=`<div class="tile-art">${used?"✓":tile.icon}</div><div class="tile-no">${used?"DONE":(index+1)}</div><div class="tile-title">${used?"COMPLETED":tile.title}</div>`;
+  b.setAttribute("aria-label",used?"Completed tile "+(index+1):tile.title);b.addEventListener("click",()=>openTile(index));grid.appendChild(b);
+ });
+ $("remaining").textContent=board.length-usedTiles.size;
 }
-function setStatus(message) { $("status").textContent = message; }
-function renderGrid() {
-  const grid = $("questionGrid");
-  grid.innerHTML = "";
-  questions.forEach((item, index) => {
-    const tile = document.createElement("button");
-    tile.className = "tile" + (usedQuestions.has(index) ? " used" : "");
-    tile.disabled = usedQuestions.has(index);
-    tile.innerHTML = usedQuestions.has(index) ? "✓<span>Completed</span>" : (index + 1) + "<span>Question</span>";
-    tile.setAttribute("aria-label", usedQuestions.has(index) ? "Question " + (index + 1) + ", completed" : "Open question " + (index + 1));
-    tile.addEventListener("click", () => openQuestion(index));
-    grid.appendChild(tile);
-  });
-  $("remaining").textContent = questions.length - usedQuestions.size;
+function makeIllustration(kind,icon){
+ const svgStart='<svg viewBox="0 0 500 150" role="img" aria-label="Science illustration" xmlns="http://www.w3.org/2000/svg">';
+ const end='</svg>';
+ const text=(x,y,t,size=17,fill="#f7f8ff")=>`<text x="${x}" y="${y}" fill="${fill}" font-family="Arial,sans-serif" font-size="${size}" font-weight="700" text-anchor="middle">${t}</text>`;
+ let drawing="";
+ switch(kind){
+ case "earth": case "surface": drawing='<circle cx="250" cy="74" r="49" fill="#4cc9f0" stroke="#a8e8ff" stroke-width="3"/><path d="M220 40l20 4 9 17-13 10 4 19-18 12-12-23 7-17-10-10zM270 28l20 9 4 17-13 8-3 19-16-7-4-21z" fill="#80ed99"/>'+text(250,143,"Earth");break;
+ case "orbit": drawing='<circle cx="250" cy="76" r="31" fill="#4cc9f0"/><ellipse cx="250" cy="76" rx="100" ry="47" fill="none" stroke="#b8c3e8" stroke-width="2" stroke-dasharray="6 5"/><circle cx="350" cy="76" r="14" fill="#d9def4"/><path d="M325 51l20 1-8 17" fill="none" stroke="#ffd166" stroke-width="4"/>'+text(250,137,"Earth and Moon");break;
+ case "centre": drawing='<circle cx="250" cy="73" r="51" fill="#4cc9f0"/><circle cx="250" cy="73" r="6" fill="#ffd166"/><path d="M250 8v49M242 48l8 10 8-10M250 138V85M242 94l8-10 8 10M185 73h56M232 65l10 8-10 8M315 73h-56M267 65l-8 8 8 8" stroke="#ffd166" stroke-width="3" fill="none"/>'+text(250,145,"Towards the centre");break;
+ case "arrow": drawing='<path d="M110 76H360M325 47l35 29-35 29" stroke="#ffd166" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'+text(235,38,"Force direction");break;
+ case "push": drawing='<rect x="190" y="42" width="110" height="70" rx="10" fill="#4cc9f0"/><path d="M70 77h90M140 58l20 19-20 19M430 77h-90M360 58l-20 19 20 19" stroke="#ffd166" stroke-width="6" fill="none"/>'+text(245,84,"OBJECT",16,"#10162f");break;
+ case "large": drawing='<circle cx="250" cy="75" r="51" fill="#9b8cff"/><circle cx="250" cy="75" r="36" fill="#7d6be5"/>'+text(250,81,"LARGE MASS",16);break;
+ case "small": drawing='<rect x="226" y="45" width="48" height="64" rx="5" fill="#ffd166"/><path d="M236 56l28 0M236 66h28M236 76h20" stroke="#17213e" stroke-width="3"/>'+text(250,135,"Small mass");break;
+ case "distance": case "spacecraft": drawing='<circle cx="100" cy="75" r="35" fill="#4cc9f0"/><path d="M135 75H375M354 57l22 18-22 18" stroke="#ffd166" stroke-width="4" fill="none"/><g transform="translate(390 75) rotate(35)"><rect x="-13" y="-20" width="26" height="40" rx="5" fill="#d9def4"/><path d="M-13 -8l-18 -8v24l18 -8M13 -8l18 -8v24l-18 -8" fill="#9b8cff"/></g>'+text(100,132,"Earth")+text(385,132,"Spacecraft");break;
+ case "down": case "apple": drawing='<path d="M250 28v82M232 93l18 18 18-18" stroke="#ffd166" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="250" cy="37" r="17" fill="#f72585"/><path d="M250 19q4-12 15-9" stroke="#80ed99" stroke-width="5" fill="none"/>'+text(250,143,"Gravity pulls down");break;
+ case "mass": drawing='<path d="M190 40h120l20 73H170z" fill="#9b8cff"/><path d="M210 40q0-27 40-27t40 27" fill="none" stroke="#ffd166" stroke-width="6"/>'+text(250,84,"MASS",22);break;
+ default: drawing=`<circle cx="250" cy="70" r="43" fill="#303d70" stroke="#4cc9f0" stroke-width="3"/>${text(250,87,icon,43)}${text(250,137,"Force & Gravity")}`;
+ }
+ return svgStart+drawing+end;
 }
-function openQuestion(index) {
-  if (usedQuestions.has(index)) return;
-  currentQuestion = index;
-  $("questionNumber").textContent = "Question " + (index + 1) + " · " + teamName(activeTeam);
-  $("questionText").textContent = questions[index].q;
-  $("answerText").textContent = questions[index].a;
-  $("answerText").style.visibility = "hidden";
-  $("revealButton").style.display = "inline-block";
-  $("questionModal").classList.add("open");
+function openTile(index){
+ if(usedTiles.has(index))return;currentTile=index;const tile=board[index];
+ $("modal").classList.add("open");$("modalAnswer").style.display="none";$("revealBtn").style.display="inline-block";
+ if(tile.kind==="question"){
+  const q=questions[tile.index];$("modalEyebrow").textContent="Question "+(tile.index+1)+" · "+nameOf(activeTeam);
+  $("modalQuestion").textContent=q.q;$("modalAnswer").textContent=q.a;$("illustration").innerHTML=makeIllustration(q.kind,q.icon);
+  $("questionActions").style.display="block";$("powerActions").style.display="none";
+ }else{
+  $("modalEyebrow").textContent="Power tile · "+nameOf(activeTeam);$("modalQuestion").textContent=tile.power.title;
+  $("illustration").innerHTML=makeIllustration("default",tile.power.icon);$("modalAnswer").textContent=tile.power.description;
+  $("questionActions").style.display="none";$("powerActions").style.display="block";$("powerDescription").textContent=tile.power.description;
+  const actions=$("powerButtons");actions.innerHTML="";
+  const p=tile.power.type;
+  const options={
+   bonus5:[["Take +5 points","gold",()=>applyPower(5,"bonus")]],
+   bonus10:[["Take +10 points","gold",()=>applyPower(10,"bonus")]],
+   steal5:[["Steal 5 points","pink",()=>applyPower(5,"steal")]],
+   steal10:[["Steal 10 points","pink",()=>applyPower(10,"steal")]],
+   zeroOpponent:[["Set opponent score to 0","red",()=>applyPower(0,"zeroOpponent")]],
+   zeroActive:[["Set active score to 0","red",()=>applyPower(0,"zeroActive")]]
+  };
+  (options[p]||[]).forEach(([label,cls,fn])=>{const b=document.createElement("button");b.className="btn "+cls;b.textContent=label;b.onclick=fn;actions.appendChild(b)});
+  const close=document.createElement("button");close.className="btn dark";close.textContent="Close without using";close.onclick=closeModal;actions.appendChild(close);
+ }
 }
-function revealAnswer() {
-  $("answerText").style.visibility = "visible";
-  $("revealButton").style.display = "none";
+function revealAnswer(){$("modalAnswer").style.display="block";$("revealBtn").style.display="none"}
+function closeModal(){$("modal").classList.remove("open")}
+function finishTile(message){if(currentTile!==null)usedTiles.add(currentTile);renderGrid();closeModal();setStatus(message);currentTile=null}
+function answerAction(action){
+ const opponent=1-activeTeam;
+ if(action==="correct"){scores[activeTeam]+=10;renderScores();finishTile(nameOf(activeTeam)+" earned 10 points for a correct answer.");}
+ else if(action==="bonus"){scores[activeTeam]+=5;renderScores();finishTile(nameOf(activeTeam)+" received 5 bonus points.");}
+ else if(action==="steal"){const amount=Math.min(5,scores[opponent]);scores[opponent]-=amount;scores[activeTeam]+=amount;renderScores();finishTile(nameOf(activeTeam)+" stole "+amount+" points from "+nameOf(opponent)+".");}
+ else if(action==="zeroOpponent"){if(!confirm("Set "+nameOf(opponent)+"'s score to zero?"))return;scores[opponent]=0;renderScores();finishTile(nameOf(opponent)+"'s score was set to zero.");}
+ else if(action==="zeroActive"){if(!confirm("Set "+nameOf(activeTeam)+"'s score to zero?"))return;scores[activeTeam]=0;renderScores();finishTile(nameOf(activeTeam)+"'s score was set to zero.");}
 }
-function closeQuestion() { $("questionModal").classList.remove("open"); }
-function awardAndClose(points) {
-  if (currentQuestion === null) return;
-  scores[activeTeam] += points;
-  usedQuestions.add(currentQuestion);
-  renderScores(); renderGrid(); closeQuestion();
-  setStatus(teamName(activeTeam) + " earned " + points + " points.");
-  currentQuestion = null;
+function applyPower(n,action){
+ const opponent=1-activeTeam;
+ if(action==="bonus"){scores[activeTeam]+=n;renderScores();finishTile(nameOf(activeTeam)+" received "+n+" bonus points.");}
+ if(action==="steal"){const amount=Math.min(n,scores[opponent]);scores[opponent]-=amount;scores[activeTeam]+=amount;renderScores();finishTile(nameOf(activeTeam)+" stole "+amount+" points from "+nameOf(opponent)+".");}
+ if(action==="zeroOpponent"){if(!confirm("Set "+nameOf(opponent)+"'s score to zero?"))return;scores[opponent]=0;renderScores();finishTile(nameOf(opponent)+"'s score was set to zero.");}
+ if(action==="zeroActive"){if(!confirm("Set "+nameOf(activeTeam)+"'s score to zero?"))return;scores[activeTeam]=0;renderScores();finishTile(nameOf(activeTeam)+"'s score was set to zero.");}
 }
-function readPoints(id) {
-  const n = Number.parseInt($(id).value, 10);
-  return Number.isFinite(n) && n > 0 ? Math.min(n, 1000) : 0;
-}
-function addPoints() {
-  const n = readPoints("points");
-  if (!n) return setStatus("Enter a points value greater than zero.");
-  scores[activeTeam] += n; renderScores();
-  setStatus(teamName(activeTeam) + " gained " + n + " points.");
-}
-function stealPoints() {
-  const n = readPoints("stealPoints");
-  if (!n) return setStatus("Enter a points value greater than zero.");
-  const opponent = 1 - activeTeam;
-  const transferred = Math.min(n, scores[opponent]);
-  scores[opponent] -= transferred;
-  scores[activeTeam] += transferred;
-  renderScores();
-  setStatus(teamName(activeTeam) + " stole " + transferred + " points from " + teamName(opponent) + ".");
-}
-function bonusPoints(n) {
-  scores[activeTeam] += n; renderScores();
-  setStatus(teamName(activeTeam) + " received " + n + " bonus points.");
-}
-function resetActiveScore() {
-  if (!confirm("Set " + teamName(activeTeam) + "'s score to zero?")) return;
-  scores[activeTeam] = 0; renderScores();
-  setStatus(teamName(activeTeam) + "'s score was reset to zero.");
-}
-function resetGame() {
-  if (!confirm("Reset all scores and make all 15 questions available again?")) return;
-  scores = [0, 0]; activeTeam = 0; usedQuestions.clear(); currentQuestion = null;
-  renderScores(); renderGrid(); closeQuestion();
-  setStatus("Game reset. " + teamName(0) + " starts.");
-}
-$("questionModal").addEventListener("click", (event) => {
-  if (event.target === $("questionModal")) closeQuestion();
-});
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") closeQuestion();
-});
-renderScores();
-renderGrid();
+$("modal").addEventListener("click",e=>{if(e.target===$("modal"))closeModal()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+renderScores();renderGrid();
 </script>
 </body>
-</html>
-'''
-
+</html>'''
 path = Path("/mnt/data/index.html")
 path.write_text(html, encoding="utf-8")
-print(f"Created {path} ({path.stat().st_size:,} bytes)")
+print(f"Updated file created: {path} ({path.stat().st_size:,} bytes)")
